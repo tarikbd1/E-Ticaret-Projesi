@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f3f4f6; /* Burayı kurumsal açık gri yaptık (bg-gray-100) */
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+/* 
+   Karanlık modu (dark mode) yapan o sinsi @media bloğunu tamamen kaldırdık! 
+   Böylece bilgisayarın gece modunda olsa bile ekranın kapkara olmayacak.
+*/
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
