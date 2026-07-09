@@ -29,4 +29,20 @@ const createProduct = async (req, res) => {
   }
 };
 
-module.exports = { getProducts, createProduct };
+// @desc    Tek bir ürünü ID ile getir
+// @access  Public
+const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      res.status(200).json({ success: true, data: product });
+    } else {
+      res.status(404).json({ success: false, message: 'Ürün bulunamadı' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Geçersiz ID formatı veya sunucu hatası' });
+  }
+};
+
+// Dışa aktarma kısmına getProductById'yi de eklemeyi unutma:
+module.exports = { getProducts, createProduct, getProductById };

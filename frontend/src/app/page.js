@@ -1,73 +1,74 @@
-'use client';
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export default function LandingPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn(true);
-    }
-    setMounted(true);
-  }, []);
-
-  // Sayfa yüklenene kadar boş ekran dön (göz kırpmasın)
-  if (!mounted) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-69px)] bg-slate-50">
-        <p className="text-sm font-semibold text-slate-400 animate-pulse">Yükleniyor...</p>
-      </div>
-    );
+// 1. SSR (Server-Side Rendering) ile verileri arka plandan çeken fonksiyon
+async function getProducts() {
+  // Backend'in çalıştığı porttan veriyi çekiyoruz (cache: 'no-store' ile her seferinde güncel veriyi alır)
+  const res = await fetch('http://localhost:5000/api/products', {
+    cache: 'no-store' 
+  });
+  
+  if (!res.ok) {
+    throw new Error('Ürünler çekilirken bir hata oluştu');
   }
+  
+  return res.json();
+}
 
-  // HEM ZİYARETÇİLER HEM DE GİRİŞ YAPANLAR BURAYI GÖREBİLİR (Ürünler buraya gelecek)
+// 2. Ana sayfa bileşeni (Server Component)
+export default async function HomePage() {
+  // Yukarıdaki fonksiyondan dönen veriyi bekliyoruz
+  const data = await getProducts();
+  const products = data.data;
+
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-69px)] bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <div className="w-full max-w-2xl p-12 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/60 text-center transition-all duration-300">
-        <span className="px-3 py-1 text-xs font-semibold text-indigo-600 bg-indigo-50 rounded-full">
-          FULL-STACK E-TİCARET SİSTEMİ
-        </span>
-        <h1 className="text-5xl font-black text-slate-800 tracking-tight mt-6 leading-tight">
-          Modern ve Güvenli <br /> Alışveriş <span className="text-indigo-600">Platformu</span>
+    <div className="min-h-screen bg-slate-950 text-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        
+        <h1 className="text-3xl font-extrabold tracking-tight text-indigo-400 mb-8">
+          Tüm Ürünler
         </h1>
-        <p className="text-base text-slate-500 mt-4 max-w-md mx-auto leading-relaxed">
-          Next.js App Router, TailwindCSS, Node.js, Mongoose ve MongoDB mimarisiyle geliştirilmiş e-ticaret altyapısı. Aktif ürünler listesi çok yakında burada olacak!
-        </p>
-
-        <div className="mt-8 flex justify-center gap-4">
-          {isLoggedIn ? (
-            <Link
-              href="/dashboard"
-              className="px-8 py-3.5 text-white font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/20 transition-all"
-            >
-              Yönetim Paneline Git
-            </Link>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="px-8 py-3.5 text-white font-semibold rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-md shadow-indigo-500/20 transition-all"
-              >
-                Giriş Yap
-              </Link>
-              <Link
-                href="/register"
-                className="px-8 py-3.5 text-slate-600 font-semibold rounded-xl bg-white border border-slate-200 hover:bg-slate-50 transition-all"
-              >
-                Kayıt Ol
-              </Link>
-            </>
-          )}
+        
+        {/* Ürün Kartları Izgarası */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div key={product._id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-lg transition-transform hover:scale-105 flex flex-col">
+              
+              <div className="h-48 w-full bg-slate-800 relative flex items-center justify-center overflow-hidden">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              <div className="p-5 flex flex-col flex-grow">
+                <h3 className="text-lg font-semibold text-slate-200 mb-2 line-clamp-2">
+                  {product.name}
+                </h3>
+                
+                <p className="text-indigo-400 font-bold text-xl mb-4 mt-auto">
+                  {product.price.toLocaleString('tr-TR')} TL
+                </p>
+                
+                <Link 
+                  href={`/products/${product._id}`}
+                  className="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl transition-colors"
+                >
+                  İncele
+                </Link>
+              </div>
+              
+            </div>
+          ))}
         </div>
-
-        <div className="mt-12 pt-6 border-t border-slate-100 flex justify-center gap-6 text-xs text-slate-400 font-medium">
-          <span>⚡ Next.js v15</span>
-          <span>🛡️ JWT Secured</span>
-          <span>🍃 MongoDB</span>
-        </div>
+        
+        {/* Eğer hiç ürün yoksa */}
+        {products.length === 0 && (
+          <div className="text-center text-slate-400 mt-10">
+            Henüz hiç ürün eklenmemiş.
+          </div>
+        )}
+        
       </div>
     </div>
   );
