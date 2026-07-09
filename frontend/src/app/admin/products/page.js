@@ -26,10 +26,33 @@ export default function AdminProductsPage() {
   };
 
   // Silme İşlemi İçin Taslak Fonksiyon (Backend'e bağlayacağız)
-  const deleteHandler = (id) => {
+  const deleteHandler = async (id) => {
     if (window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) {
-      console.log('Silinecek ürün ID:', id);
-      // TODO: Silme API isteği buraya gelecek
+      try {
+        // Tarayıcıdaki token'ı alıyoruz
+        const token = localStorage.getItem('token');
+        
+        const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // Başarılıysa, silinen ürünü ekrandan (state'den) anında uçur
+          setProducts(products.filter((product) => product._id !== id));
+          // Eğer react-toastify eklediysen buraya toast.success('Ürün silindi') yazabilirsin.
+          alert('Ürün başarıyla silindi!');
+        } else {
+          alert(data.message || 'Ürün silinemedi.');
+        }
+      } catch (error) {
+        console.error("Silme işlemi sırasında hata:", error);
+        alert('Sunucuyla bağlantı kurulamadı.');
+      }
     }
   };
 

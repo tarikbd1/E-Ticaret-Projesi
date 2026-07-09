@@ -38,15 +38,31 @@ export default function LoginPage() {
       }
 
       if (response.data?.token) {
-        // Token'ı tarayıcıya kazıyoruz
+        // 1. Token'ı kaydediyoruz
         localStorage.setItem('token', response.data.token);
-        toast.success('Giriş başarılı! Yönetici paneline yönlendiriliyorsunuz...');
         
-        // Rota düzeltildi: /dashboard yerine /admin'e gidiyoruz
-        setTimeout(() => {
-          router.replace('/admin');
-          router.refresh(); // Panelin güncel verilerle yüklenmesi için eklendi
-        }, 1000);
+        // 2. Kullanıcı bilgilerini (isim, rol) Navbar'da kullanmak için kaydediyoruz
+        localStorage.setItem('user', JSON.stringify({
+          name: response.data.name,
+          role: response.data.role,
+          email: response.data.email
+        }));
+
+        // 3. Trafik Polisi Zekası: Rolüne göre yönlendir
+        if (response.data.role === 'admin') {
+          toast.success('Yönetici girişi başarılı! Panele yönlendiriliyorsunuz...');
+          setTimeout(() => {
+            router.replace('/admin');
+            router.refresh(); 
+          }, 1000);
+        } else {
+          // Normal müşteri ise ana sayfaya (vitrine) şutla
+          toast.success(`Hoş geldin ${response.data.name}! Vitrine yönlendiriliyorsunuz...`);
+          setTimeout(() => {
+            router.replace('/');
+            router.refresh(); 
+          }, 1000);
+        }
       } else {
         toast.error('Token bilgisi alınamadı!');
         setLoading(false);

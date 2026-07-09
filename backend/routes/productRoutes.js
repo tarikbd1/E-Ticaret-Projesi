@@ -1,15 +1,22 @@
 const express = require('express');
 const router = express.Router();
-// getProductById'yi import içine ekledik
-const { getProducts, createProduct, getProductById } = require('../controllers/productController');
+
+// ÇÖZÜM BURADA: deleteProduct'ı bu süslü parantezlerin içine ekledik
+const { 
+  getProducts, 
+  createProduct, 
+  getProductById, 
+  deleteProduct 
+} = require('../controllers/productController');
+
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
 
 router.route('/')
   .get(getProducts)
   .post(protect, adminOnly, createProduct);
 
-// YENİ EKLENEN ROTA: Sadece /:id parametresi alan istekler buraya düşecek
 router.route('/:id')
-  .get(getProductById);
+  .get(getProductById)
+  .delete(protect, adminOnly, deleteProduct); // Artık burası sorunsuz çalışacak
 
 module.exports = router;

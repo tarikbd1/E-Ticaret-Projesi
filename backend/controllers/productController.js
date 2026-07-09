@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
   }
 };
 
-// @desc    Tek bir ürünü ID ile getir
+// @desc    Tek bir ürünü ID ile getir (GET)
 // @access  Public
 const getProductById = async (req, res) => {
   try {
@@ -44,5 +44,27 @@ const getProductById = async (req, res) => {
   }
 };
 
-// Dışa aktarma kısmına getProductById'yi de eklemeyi unutma:
-module.exports = { getProducts, createProduct, getProductById };
+// @desc    Ürünü Sil (DELETE)
+// @access  Private/Admin (Sadece yöneticiler)
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    
+    if (product) {
+      await product.deleteOne(); // Veritabanından tamamen siler
+      res.status(200).json({ success: true, message: 'Ürün sistemden başarıyla silindi' });
+    } else {
+      res.status(404).json({ success: false, message: 'Silinecek ürün bulunamadı' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Tüm fonksiyonları dışa aktarıyoruz
+module.exports = { 
+  getProducts, 
+  createProduct, 
+  getProductById, 
+  deleteProduct 
+};
