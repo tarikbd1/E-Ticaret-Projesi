@@ -1,7 +1,6 @@
 const Product = require('../models/Product');
 
-// @desc    Tüm aktif ürünleri getir
-// @route   GET /api/products
+// @desc    Tüm ürünleri getir (GET)
 // @access  Public (Herkes görebilir)
 const getProducts = async (req, res) => {
   try {
@@ -12,31 +11,22 @@ const getProducts = async (req, res) => {
   }
 };
 
-// @desc    Tek bir ürün detayını getir
-// @route   GET /api/products/:id
-// @access  Public
-const getProductById = async (req, res) => {
+// @desc    Yeni ürün ekle (POST)
+// @access  Private/Admin (Sadece yöneticiler)
+const createProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ success: false, message: 'Ürün bulunamadı' });
-    }
-    res.status(200).json({ success: true, data: product });
+    const { name, description, price, image, stock } = req.body;
+    
+    const product = new Product({
+      name, description, price, image, stock,
+      user: req.user._id // protect middleware'inden gelen giriş yapmış adminin ID'si
+    });
+
+    const createdProduct = await product.save();
+    res.status(201).json({ success: true, data: createdProduct });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Yeni ürün ekle
-// @route   POST /api/products
-// @access  Private/Admin (Sadece Admin)
-const createProduct = async (req, res) => {
-  try {
-    const product = await Product.create(req.body);
-    res.status(201).json({ success: true, data: product });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-module.exports = { getProducts, getProductById, createProduct };
+module.exports = { getProducts, createProduct };

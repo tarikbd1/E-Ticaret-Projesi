@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { getProducts, getProductById, createProduct } = require('../controllers/productController');
+const { getProducts, createProduct } = require('../controllers/productController');
+
+// DÜZELTME: Senin yazdığın adminOnly fonksiyonunu çağırıyoruz
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
 
-// Route ayarlamaları
+// POST işlemine protect ve adminOnly korumalarını zincirliyoruz
 router.route('/')
-  .get(getProducts) // Herkes GET atabilir
-  .post(protect, adminOnly, createProduct); // Sadece token'ı olan ve admin olan POST atabilir
-
-router.route('/:id')
-  .get(getProductById);
+  .get(getProducts)
+  .post(protect, adminOnly, createProduct);
 
 module.exports = router;
