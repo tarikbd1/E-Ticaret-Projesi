@@ -3,36 +3,53 @@ import { persist } from 'zustand/middleware';
 
 export const useCartStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       cartItems: [],
 
-      // 1. Sepete Ürün Ekleme (Eğer varsa miktarını artırır)
-      addToCart: (product) => set((state) => {
-        const existingItem = state.cartItems.find((item) => item._id === product._id);
+      // 🛒 SEPETE ÜRÜN EKLE
+      addToCart: (product, quantity = 1) => {
+        const currentCart = get().cartItems;
+        const existingItem = currentCart.find((item) => item._id === product._id);
+
         if (existingItem) {
-          return {
-            cartItems: state.cartItems.map((item) =>
-              item._id === product._id ? { ...item, qty: item.qty + 1 } : item
+          set({
+            cartItems: currentCart.map((item) =>
+              item._id === product._id
+                ? { ...item, qty: item.qty + quantity }
+                : item
             ),
-          };
+          });
+        } else {
+          set({ cartItems: [...currentCart, { ...product, qty: quantity }] });
         }
-        return { cartItems: [...state.cartItems, { ...product, qty: 1 }] };
-      }),
+      },
 
-      // 2. Sepetten Ürün Silme
-      removeFromCart: (id) => set((state) => ({
-        cartItems: state.cartItems.filter((item) => item._id !== id),
-      })),
+      // 🔄 MİKTARI ARTIR / AZALT (YENİ EKLENEN KISIM)
+      updateQuantity: (productId, amount) => {
+        set({
+          cartItems: get().cartItems.map((item) => {
+            if (item._id === productId) {
+              const newQty = item.qty + amount;
+              // Miktar 1'in altına düşmesin. Silmek isteyen çöp kutusunu kullansın.
+              return { ...item, qty: newQty > 0 ? newQty : 1 };
+            }
+            return item;
+          }),
+        });
+      },
 
-      // 3. Ürün Miktarını Güncelleme (+ / - butonları için)
-      updateQuantity: (id, qty) => set((state) => ({
-        cartItems: state.cartItems.map((item) =>
-          item._id === id ? { ...item, qty: Math.max(1, qty) } : item
-        ),
-      })),
+      // 🗑️ SEPETTEN ÜRÜN SİL
+      removeFromCart: (productId) => {
+        set({
+          cartItems: get().cartItems.filter((item) => item._id !== productId),
+        });
+      },
+
+      // 🧹 SEPETİ TAMAMEN BOŞALT
+      clearCart: () => set({ cartItems: [] }),
     }),
     {
-      name: 'cart-storage', // Sayfa yenilense bile sepetin kaybolmamasını sağlar
+      name: 'ecommerce-cart',
     }
   )
 );

@@ -3,6 +3,7 @@ import { useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import Link from 'next/link';
+import { useCartStore } from '@/store/cartStore';
 
 export default function ProductDetailPage({ params }) {
   const unwrappedParams = use(params); 
@@ -26,12 +27,11 @@ export default function ProductDetailPage({ params }) {
     fetchProduct();
   }, [id]);
 
+  
+  const addToCartAction = useCartStore((state) => state.addToCart);
+
   const addToCart = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    for(let i = 0; i < quantity; i++) {
-      cart.push(product);
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
+    addToCartAction(product, quantity); 
     toast.success(`${quantity} adet ${product.name} sepete eklendi!`);
   };
 
