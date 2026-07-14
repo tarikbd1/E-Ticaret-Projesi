@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // DİKKAT: Destek sayfasına yönlendirme için Link eklendi!
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -214,8 +215,14 @@ export default function DashboardPage() {
 
             </div>
 
-            {/* Şifre Değiştirme Butonu */}
-            <div className="pt-4 mt-6 border-t border-slate-800">
+            {/* Hızlı İşlemler (Destek & Şifre) - YENİ EKLENEN KISIM */}
+            <div className="pt-4 mt-6 border-t border-slate-800 space-y-3">
+              <Link
+                href="/support"
+                className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-[0.98] text-indigo-400 text-xs font-bold rounded-xl transition duration-200 cursor-pointer flex items-center justify-center gap-2 border border-indigo-500/20"
+              >
+                🎧 Destek Talebi Oluştur
+              </Link>
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-lg shadow-black/20 flex items-center justify-center gap-2 border border-slate-700"
@@ -289,7 +296,7 @@ export default function DashboardPage() {
 
       </div>
 
-      {/* ŞİFRE DEĞİŞTİRME MODAL (Burası aynı kaldı, jilet gibi zaten) */}
+      {/* ŞİFRE DEĞİŞTİRME MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity">
           <div className="w-full max-w-md p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 transition-all transform scale-100 animate-in fade-in zoom-in duration-200">

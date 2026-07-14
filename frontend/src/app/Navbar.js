@@ -35,8 +35,6 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user'); 
-    // Göz kırpma hatasını önlemek için arayüzü (state) burada sıfırlamıyoruz.
-    // Yönlendirme bittiğinde Navbar zaten yeniden hesaplanacak veya gizlenecek.
     router.replace('/login');
   };
 
@@ -60,10 +58,15 @@ export default function Navbar() {
       {/* SAĞ: MENÜ, SEPET VE PROFİL */}
       <div className="flex items-center gap-4 sm:gap-6">
         
-        {/* Ortak Link */}
-        <Link href="/" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
-          Ürünler
-        </Link>
+        {/* Ortak Linkler (Ürünler ve Destek) */}
+        <div className="hidden sm:flex items-center gap-6">
+          <Link href="/" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            Ürünler
+          </Link>
+          <Link href="/support" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">
+            Destek
+          </Link>
+        </div>
 
         {/* Sepet İkonu */}
         <Link href="/cart" className="relative p-1 text-slate-300 hover:text-indigo-400 transition-colors group" title="Sepete Git">
@@ -82,8 +85,19 @@ export default function Navbar() {
         {isLoggedIn ? (
           <div className="flex items-center gap-3 sm:gap-4">
             
-            {/* Şık Kullanıcı Profil Alanı */}
-            <Link href={user?.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2.5 group">
+            {/* 👑 SADECE YÖNETİCİYE GÖRÜNEN ADMİN PANELİ BUTONU */}
+            {user?.role === 'admin' && (
+              <Link 
+                href="/admin" 
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 hover:bg-amber-500/20 hover:text-amber-300 rounded-lg text-xs font-bold transition-colors"
+                title="Dükkanı Yönet"
+              >
+                Admin Paneli
+              </Link>
+            )}
+
+            {/* Şık Kullanıcı Profil Alanı (HERKES İÇİN ŞAHSİ PROFİLE GİDER) */}
+            <Link href="/dashboard" className="flex items-center gap-2.5 group" title="Kişisel Hesabım">
               <div className="h-9 w-9 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500/20 group-hover:border-indigo-500/40 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-indigo-400">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
@@ -94,7 +108,7 @@ export default function Navbar() {
                   {user?.role === 'admin' ? 'Yönetici' : 'Müşteri'}
                 </span>
                 <span className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors leading-none">
-                  {user?.name?.split(' ')[0] || 'Hesabım'}
+                  {user?.name?.split(' ')[0] || 'Profilim'}
                 </span>
               </div>
             </Link>
