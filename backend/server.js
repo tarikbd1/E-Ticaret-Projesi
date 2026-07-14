@@ -4,7 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 const authRoutes = require('./routes/authRoutes');
-const productRoutes = require('./routes/productRoutes'); // YENİ EKLENDİ
+const productRoutes = require('./routes/productRoutes');
 
 dotenv.config();
 connectDB();
@@ -15,8 +15,10 @@ app.use(cors());
 app.use(express.json()); 
 
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes); // YENİ EKLENDİ
+app.use('/api/products', productRoutes);
 app.use('/api/tickets', require('./routes/ticketRoutes'));
+app.use('/api/tickets', require('./routes/ticketRoutes'));
+app.use('/api/orders', require('./routes/orderRoutes'));
 
 app.get('/', (req, res) => {
   res.send('E-Ticaret API Tıkır Tıkır Çalışıyor...');

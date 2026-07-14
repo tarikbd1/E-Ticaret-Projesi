@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
-// ÇÖZÜM BURADA: deleteProduct'ı bu süslü parantezlerin içine ekledik
 const { 
   getProducts, 
   createProduct, 
   getProductById, 
-  deleteProduct 
+  deleteProduct,
+  updateProduct // ÇÖZÜM BURADA: updateProduct'ı içeri aktardık
 } = require('../controllers/productController');
 
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
@@ -17,6 +17,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getProductById)
-  .delete(protect, adminOnly, deleteProduct); // Artık burası sorunsuz çalışacak
+  .put(protect, adminOnly, updateProduct) // DÜZENLEME (PUT) İŞLEMİ BURAYA EKLENDİ
+  .delete(protect, adminOnly, deleteProduct); 
 
 module.exports = router;

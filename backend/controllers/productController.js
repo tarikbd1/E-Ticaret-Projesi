@@ -61,10 +61,29 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const updateProduct = async (req, res) => {
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: 'Düzenlenecek ürün bulunamadı.' });
+    }
+
+    res.status(200).json({ success: true, data: updatedProduct });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Ürün güncellenirken sunucu hatası oluştu.' });
+  }
+};
+
 // Tüm fonksiyonları dışa aktarıyoruz
-module.exports = { 
-  getProducts, 
-  createProduct, 
-  getProductById, 
-  deleteProduct 
+module.exports = {
+  getProducts,
+  createProduct,
+  getProductById,
+  deleteProduct,
+  updateProduct 
 };
