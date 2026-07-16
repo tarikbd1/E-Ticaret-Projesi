@@ -48,6 +48,9 @@ export default function LoginPage() {
           email: response.data.email
         }));
 
+        localStorage.removeItem('cart'); // Eğer sepete başka isim verdiysen (örn: cartItems) burayı ona göre düzelt!
+        sessionStorage.removeItem('guestUser'); // Destek sayfasındaki geçici misafir oturumunu da temizle
+
         // 3. Trafik Polisi Zekası: Rolüne göre yönlendir
         if (response.data.role === 'admin') {
           toast.success('Yönetici girişi başarılı! Panele yönlendiriliyorsunuz...');

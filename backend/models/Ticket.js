@@ -19,8 +19,14 @@ const ticketSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Açık', 'İnceleniyor', 'Kapatıldı'],
-    default: 'Açık' // Dokümanda adminin ticket durumunu güncelleyeceği belirtilmişti
+    // 🚀 DÜZELTME: 'Cevaplandı' seçeneği eklendi
+    enum: ['Açık', 'İnceleniyor', 'Cevaplandı', 'Kapatıldı'], 
+    default: 'Açık'
+  },
+  // 🚀 YENİ EKLENEN: Adminin yanıtı burada tutulacak
+  reply: {
+    type: String,
+    default: ''
   }
 }, { timestamps: true });
 

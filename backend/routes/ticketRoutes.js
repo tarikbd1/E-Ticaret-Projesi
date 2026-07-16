@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/tickets - Admin için tüm ticketları getirme (Bunu daha sonra Admin paneline bağlayacağız)
+// GET /api/tickets - Admin için tüm ticketları getirme
 router.get('/', async (req, res) => {
   try {
     const tickets = await Ticket.find().sort({ createdAt: -1 });
@@ -34,19 +34,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-// PUT /api/tickets/:id - Adminin ticket durumunu güncellemesi
+// 🚀 PUT /api/tickets/:id - Adminin ticket durumunu VE YANITINI güncellemesi
 router.put('/:id', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, reply } = req.body; // Frontend'den hem durumu hem yanıtı alıyoruz
     
-    // Sadece izin verilen durumların girildiğinden emin olalım
-    if (!['Açık', 'İnceleniyor', 'Kapatıldı'].includes(status)) {
+    // Güvenlik Duvarı: İzin verilen durumların listesi (Cevaplandı EKLENDİ)
+    if (status && !['Açık', 'İnceleniyor', 'Cevaplandı', 'Kapatıldı'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Geçersiz durum bilgisi.' });
     }
 
+    // Güncellenecek verileri hazırlayalım (Eğer reply geldiyse onu da ekle)
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (reply !== undefined) updateData.reply = reply; 
+
     const updatedTicket = await Ticket.findByIdAndUpdate(
       req.params.id,
-      { status },
+      updateData,
       { new: true, runValidators: true }
     );
 
@@ -57,6 +62,21 @@ router.put('/:id', async (req, res) => {
     res.status(200).json({ success: true, data: updatedTicket });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Ticket durumu güncellenirken hata oluştu.' });
+  }
+});
+
+// 🗑️ DELETE /api/tickets/:id - Adminin ticket silmesi
+router.delete('/:id', async (req, res) => {
+  try {
+    const ticket = await Ticket.findByIdAndDelete(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Ticket bulunamadı.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Ticket başarıyla silindi.' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Ticket silinirken hata oluştu.' });
   }
 });
 

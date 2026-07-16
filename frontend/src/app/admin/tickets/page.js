@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useRouter } from 'next/navigation'; // 🚀 1. Yönlendirme motorunu import ettik
 
 export default function AdminTicketsPage() {
+  const router = useRouter(); // 🚀 2. Motoru çalıştırdık
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -96,9 +98,14 @@ export default function AdminTicketsPage() {
                 </tr>
               ) : (
                 tickets.map((ticket) => (
-                  <tr key={ticket._id} className="hover:bg-slate-800/30 transition-colors group">
+                  // 🚀 3. Satırı tıklanabilir yaptık ve yönlendirme ekledik
+                  <tr 
+                    key={ticket._id} 
+                    onClick={() => router.push('/admin/support')}
+                    className="hover:bg-slate-800/30 transition-colors group cursor-pointer"
+                  >
                     <td className="p-4">
-                      <div className="font-bold text-slate-200 text-sm">{ticket.name}</div>
+                      <div className="font-bold text-slate-200 text-sm group-hover:text-indigo-400 transition-colors">{ticket.name}</div>
                       <div className="text-xs text-slate-500 mt-0.5">{ticket.email}</div>
                     </td>
                     <td className="p-4 max-w-xs">
@@ -114,11 +121,12 @@ export default function AdminTicketsPage() {
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      {/* Durum Değiştirme Dropdown'ı */}
+                      {/* 🚀 4. ÇAKISMA ÖNLEYİCİ: Select'e tıklayınca satırın yönlendirmesini durdurur */}
                       <select 
                         value={ticket.status}
+                        onClick={(e) => e.stopPropagation()} 
                         onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
-                        className="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                        className="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer relative z-10"
                       >
                         <option value="Açık">Açık Yap</option>
                         <option value="İnceleniyor">İnceleniyor Yap</option>
