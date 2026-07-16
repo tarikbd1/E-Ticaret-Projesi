@@ -56,7 +56,7 @@ const getUserProfile = async (req, res) => {
         email: user.email, 
         role: user.role, 
         createdAt: user.createdAt, 
-        loginCount: user.loginCount // DÜZELTİLEN YER: Artık veritabanından geliyor
+        loginCount: user.loginCount
       });
     } else {
       res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });

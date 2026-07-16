@@ -43,40 +43,36 @@ export default function LoginPage() {
         // 1. Token'ı kaydediyoruz
         localStorage.setItem('token', response.data.token);
         
-        // 2. Kullanıcı bilgilerini (isim, rol) Navbar'da vb. kullanmak için kaydediyoruz
+        // 2. Kullanıcı bilgilerini ve _id'yi kaydediyoruz (HAYATİ DÜZELTME BURADA)
         localStorage.setItem('user', JSON.stringify({
+          _id: response.data._id || response.data.id, // Checkout için gereken ID eklendi
           name: response.data.name,
           role: response.data.role,
           email: userEmail
         }));
 
         // 🚀 ZUSTAND DİNAMİK SEPET YÖNETİMİ: Misafir Sepetini Kullanıcıya Aktar
-        const guestCart = localStorage.getItem('cart_guest'); // Yeni yazdığımız motorun misafir sepeti
-        const userCartKey = `cart_${userEmail}`; // Yeni motorun kullanıcıya özel sepeti
+        const guestCart = localStorage.getItem('cart_guest'); 
+        const userCartKey = `cart_${userEmail}`; 
 
         if (guestCart) {
-          // Misafirin sepetinde ürün varsa, bunu giriş yapan adamın özel anahtarına aktar
           localStorage.setItem(userCartKey, guestCart);
-          // Aktarım bittiğine göre misafir sepetini temizle
           localStorage.removeItem('cart_guest');
         }
 
-        // Eski sistemden kalan gereksiz kalıntıları da garanti olsun diye temizliyoruz
+        // Eski sistemden kalan gereksiz kalıntıları temizle
         localStorage.removeItem('cart'); 
         sessionStorage.removeItem('guestUser'); 
 
-        // 3. Trafik Polisi Zekası: Rolüne göre yönlendir (🔥 DİKKAT: window.location.href kullanıldı)
+        // 3. Trafik Polisi Zekası: Rolüne göre yönlendir
         if (response.data.role === 'admin') {
           toast.success('Yönetici girişi başarılı! Panele yönlendiriliyorsunuz...');
           setTimeout(() => {
-            // router.replace yerine tam sayfa yenileme yapıyoruz ki Zustand'ın RAM'i temizlensin
             window.location.href = '/admin';
           }, 1000);
         } else {
-          // Normal müşteri ise ana sayfaya (vitrine) şutla
           toast.success(`Hoş geldin ${response.data.name}! Vitrine yönlendiriliyorsunuz...`);
           setTimeout(() => {
-            // router.replace yerine tam sayfa yenileme yapıyoruz ki Zustand'ın RAM'i temizlensin
             window.location.href = '/';
           }, 1000);
         }
@@ -136,7 +132,6 @@ export default function LoginPage() {
                 required
               />
               
-              {/* Minimal SVG Buton */}
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -157,7 +152,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ŞİFREMİ UNUTTUM: Tam Ortada */}
           <div className="flex justify-center items-center pt-1">
             <button
               type="button"
@@ -168,7 +162,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* GİRİŞ BUTONU */}
           <div className="pt-1">
             <button
               type="submit"
@@ -182,7 +175,6 @@ export default function LoginPage() {
           </div>
         </form>
 
-        {/* KAYIT OLMAYA GEÇİŞ LINKI */}
         <div className="text-center mt-6 pt-4 border-t border-slate-800/50">
           <p className="text-xs text-slate-400">
             Henüz bir hesabınız yok mu?{' '}
@@ -196,7 +188,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* ALT BİLGİ NOTU */}
         <div className="text-center mt-4">
           <p className="text-[11px] text-slate-500 font-mono">
             Güvenlik katmanı aktif. JWT & BcryptJS korumalı alan.

@@ -13,6 +13,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/orders/my-orders/:userId - Sadece giriş yapan kullanıcının kendi siparişlerini getir
+router.get('/my-orders/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    
+    // Sadece o user ID'sine ait siparişleri bul ve tarihe göre tersten sırala
+    const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
+    
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Siparişleriniz yüklenirken bir hata oluştu.' });
+  }
+});
+
 // PUT /api/orders/:id - Adminin sipariş durumunu güncellemesi
 router.put('/:id', async (req, res) => {
   try {
