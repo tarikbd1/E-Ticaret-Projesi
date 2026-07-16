@@ -1,5 +1,42 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+// 🚀 MÜHENDİSLİK DOKUNUŞU: Dinamik Sepet Anahtarı Üretici
+// Kim giriş yapmışsa onun mailiyle çekmece açar, yapmamışsa misafir çekmecesi açar
+const getDynamicKey = () => {
+  // Next.js sunucu tarafında (SSR) patlamaması için kontrol
+  if (typeof window === 'undefined') return 'cart_guest';
+
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user && user.email) {
+        return `cart_${user.email}`; // Örn: cart_ahmet@gmail.com
+      }
+    }
+  } catch (error) {
+    console.error('Kullanıcı parse hatası:', error);
+  }
+  return 'cart_guest'; // Kimse giriş yapmamışsa misafir sepetini kullan
+};
+
+// 🧠 ZUSTAND İÇİN ÖZEL DEPO (STORAGE) MOTORU
+// Zustand standart localStorage yerine bizim bu motorumuzu kullanacak
+const dynamicStorage = {
+  getItem: (name) => {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(getDynamicKey());
+  },
+  setItem: (name, value) => {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(getDynamicKey(), value);
+  },
+  removeItem: (name) => {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(getDynamicKey());
+  },
+};
 
 export const useCartStore = create(
   persist(
@@ -24,7 +61,7 @@ export const useCartStore = create(
         }
       },
 
-      // 🔄 MİKTARI ARTIR / AZALT (YENİ EKLENEN KISIM)
+      // 🔄 MİKTARI ARTIR / AZALT
       updateQuantity: (productId, amount) => {
         set({
           cartItems: get().cartItems.map((item) => {
@@ -49,7 +86,8 @@ export const useCartStore = create(
       clearCart: () => set({ cartItems: [] }),
     }),
     {
-      name: 'ecommerce-cart',
+      name: 'ecommerce-cart', // Zustand bu ismi zorunlu ister, ama biz altta dynamicStorage ile eziyoruz!
+      storage: createJSONStorage(() => dynamicStorage), // 🔥 Özel motorumuzu bağladık
     }
   )
 );

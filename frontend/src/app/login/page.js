@@ -38,32 +38,46 @@ export default function LoginPage() {
       }
 
       if (response.data?.token) {
+        const userEmail = response.data.email;
+
         // 1. Token'ı kaydediyoruz
         localStorage.setItem('token', response.data.token);
         
-        // 2. Kullanıcı bilgilerini (isim, rol) Navbar'da kullanmak için kaydediyoruz
+        // 2. Kullanıcı bilgilerini (isim, rol) Navbar'da vb. kullanmak için kaydediyoruz
         localStorage.setItem('user', JSON.stringify({
           name: response.data.name,
           role: response.data.role,
-          email: response.data.email
+          email: userEmail
         }));
 
-        localStorage.removeItem('cart'); // Eğer sepete başka isim verdiysen (örn: cartItems) burayı ona göre düzelt!
-        sessionStorage.removeItem('guestUser'); // Destek sayfasındaki geçici misafir oturumunu da temizle
+        // 🚀 ZUSTAND DİNAMİK SEPET YÖNETİMİ: Misafir Sepetini Kullanıcıya Aktar
+        const guestCart = localStorage.getItem('cart_guest'); // Yeni yazdığımız motorun misafir sepeti
+        const userCartKey = `cart_${userEmail}`; // Yeni motorun kullanıcıya özel sepeti
 
-        // 3. Trafik Polisi Zekası: Rolüne göre yönlendir
+        if (guestCart) {
+          // Misafirin sepetinde ürün varsa, bunu giriş yapan adamın özel anahtarına aktar
+          localStorage.setItem(userCartKey, guestCart);
+          // Aktarım bittiğine göre misafir sepetini temizle
+          localStorage.removeItem('cart_guest');
+        }
+
+        // Eski sistemden kalan gereksiz kalıntıları da garanti olsun diye temizliyoruz
+        localStorage.removeItem('cart'); 
+        sessionStorage.removeItem('guestUser'); 
+
+        // 3. Trafik Polisi Zekası: Rolüne göre yönlendir (🔥 DİKKAT: window.location.href kullanıldı)
         if (response.data.role === 'admin') {
           toast.success('Yönetici girişi başarılı! Panele yönlendiriliyorsunuz...');
           setTimeout(() => {
-            router.replace('/admin');
-            router.refresh(); 
+            // router.replace yerine tam sayfa yenileme yapıyoruz ki Zustand'ın RAM'i temizlensin
+            window.location.href = '/admin';
           }, 1000);
         } else {
           // Normal müşteri ise ana sayfaya (vitrine) şutla
           toast.success(`Hoş geldin ${response.data.name}! Vitrine yönlendiriliyorsunuz...`);
           setTimeout(() => {
-            router.replace('/');
-            router.refresh(); 
+            // router.replace yerine tam sayfa yenileme yapıyoruz ki Zustand'ın RAM'i temizlensin
+            window.location.href = '/';
           }, 1000);
         }
       } else {
