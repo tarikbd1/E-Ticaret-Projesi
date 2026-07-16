@@ -86,6 +86,8 @@ exports.createPayment = async (req, res) => {
         return res.status(500).json({ success: false, message: 'İyzico sunucusuna ulaşılamadı.', error: err });
       }
 
+      console.log("İyzico Yanıtı:", JSON.stringify(result, null, 2));
+      
       if (result.status === 'success') {
         // Ödeme Başarılı! Siparişi Veritabanına Kaydet[cite: 1]
         const newOrder = new Order({
