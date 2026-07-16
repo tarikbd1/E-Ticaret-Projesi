@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useRouter } from 'next/navigation'; // 🚀 1. Yönlendirme motorunu import ettik
+import { useRouter } from 'next/navigation';
 
 export default function AdminTicketsPage() {
-  const router = useRouter(); // 🚀 2. Motoru çalıştırdık
+  const router = useRouter();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,12 +47,13 @@ export default function AdminTicketsPage() {
     }
   };
 
-  // Duruma göre renk belirleme ufak bir estetik dokunuş
+  // Duruma göre renk belirleme - Cevaplandı rengi eklendi!
   const getStatusColor = (status) => {
     switch (status) {
       case 'Açık': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'İnceleniyor': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'Kapatıldı': return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+      case 'Cevaplandı': return 'bg-blue-500/10 text-blue-400 border-blue-500/20'; // Mavi renkli profesyonel görünüm
+      case 'Kapatıldı': return 'bg-slate-500/10 text-slate-400 border-slate-500/20'; // Eskiden kalanlar için yedek
       default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     }
   };
@@ -97,44 +98,59 @@ export default function AdminTicketsPage() {
                   <td colSpan="5" className="p-8 text-center text-slate-500">Henüz hiçbir destek talebi bulunmuyor.</td>
                 </tr>
               ) : (
-                tickets.map((ticket) => (
-                  // 🚀 3. Satırı tıklanabilir yaptık ve yönlendirme ekledik
-                  <tr 
-                    key={ticket._id} 
-                    onClick={() => router.push('/admin/support')}
-                    className="hover:bg-slate-800/30 transition-colors group cursor-pointer"
-                  >
-                    <td className="p-4">
-                      <div className="font-bold text-slate-200 text-sm group-hover:text-indigo-400 transition-colors">{ticket.name}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{ticket.email}</div>
-                    </td>
-                    <td className="p-4 max-w-xs">
-                      <div className="font-bold text-slate-300 text-sm truncate">{ticket.subject}</div>
-                      <div className="text-xs text-slate-500 mt-0.5 truncate">{ticket.message}</div>
-                    </td>
-                    <td className="p-4 text-xs text-slate-400 font-medium">
-                      {new Date(ticket.createdAt).toLocaleDateString('tr-TR')}
-                    </td>
-                    <td className="p-4">
-                      <span className={`px-3 py-1 rounded-full text-[11px] font-bold border ${getStatusColor(ticket.status)}`}>
-                        {ticket.status}
-                      </span>
-                    </td>
-                    <td className="p-4 text-right">
-                      {/* 🚀 4. ÇAKISMA ÖNLEYİCİ: Select'e tıklayınca satırın yönlendirmesini durdurur */}
-                      <select 
-                        value={ticket.status}
-                        onClick={(e) => e.stopPropagation()} 
-                        onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
-                        className="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer relative z-10"
-                      >
-                        <option value="Açık">Açık Yap</option>
-                        <option value="İnceleniyor">İnceleniyor Yap</option>
-                        <option value="Kapatıldı">Kapatıldı Yap</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))
+                tickets.map((ticket) => {
+                  // 🚀 MÜHENDİSLİK DOKUNUŞU: Talep cevaplandıysa kilitli kabul et!
+                  const isLocked = ticket.status === 'Cevaplandı' || ticket.status === 'Kapatıldı';
+
+                  return (
+                    <tr 
+                      key={ticket._id} 
+                      onClick={() => router.push('/admin/support')}
+                      className="hover:bg-slate-800/30 transition-colors group cursor-pointer"
+                    >
+                      <td className="p-4">
+                        <div className="font-bold text-slate-200 text-sm group-hover:text-indigo-400 transition-colors">{ticket.name}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">{ticket.email}</div>
+                      </td>
+                      <td className="p-4 max-w-xs">
+                        <div className="font-bold text-slate-300 text-sm truncate">{ticket.subject}</div>
+                        <div className="text-xs text-slate-500 mt-0.5 truncate">{ticket.message}</div>
+                      </td>
+                      <td className="p-4 text-xs text-slate-400 font-medium">
+                        {new Date(ticket.createdAt).toLocaleDateString('tr-TR')}
+                      </td>
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-[11px] font-bold border ${getStatusColor(ticket.status)}`}>
+                          {ticket.status}
+                        </span>
+                      </td>
+                      <td className="p-4 text-right">
+                        
+                        {/* 🚀 EĞER KİLİTLİYSE SELECT YERİNE KİLİT İKONU GÖSTER, DEĞİLSE MENÜYÜ GÖSTER */}
+                        {isLocked ? (
+                          <span 
+                            className="inline-flex items-center gap-1 bg-slate-950 border border-slate-800 text-slate-500 text-[11px] font-bold rounded-lg px-3 py-1.5 cursor-not-allowed"
+                            title="Bu talebe cevap verilmiş. Durumu değiştirilemez."
+                          >
+                            🔒 Kilitli
+                          </span>
+                        ) : (
+                          <select 
+                            value={ticket.status}
+                            onClick={(e) => e.stopPropagation()} 
+                            onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
+                            className="bg-slate-950 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer relative z-10"
+                          >
+                            <option value="Açık">Açık</option>
+                            <option value="İnceleniyor">İnceleniyor</option>
+                            {/* Kapatıldı seçeneği tamamen silindi! */}
+                          </select>
+                        )}
+                        
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

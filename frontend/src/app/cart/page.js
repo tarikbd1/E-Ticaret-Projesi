@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useCartStore } from '@/store/cartStore';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const cartItems = useCartStore((state) => state.cartItems);
   const removeFromCartAction = useCartStore((state) => state.removeFromCart);
   const updateQuantity = useCartStore((state) => state.updateQuantity); // Yeni fonksiyonu çektik
-  
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -148,10 +149,10 @@ export default function CartPage() {
                 </div>
                 
                 <button 
-                  onClick={() => alert("Ödeme altyapısı (Iyzico/Stripe) entegre edilecek!")}
+                  onClick={() => router.push('/checkout')}
                   className="w-full mt-8 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black text-lg py-5 rounded-2xl transition-all shadow-[0_10px_40px_-10px_rgba(99,102,241,0.5)] active:scale-[0.98] flex items-center justify-center gap-2"
                 >
-                  Sepeti Onayla
+                  Ödeme Adımına Geç
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                   </svg>
