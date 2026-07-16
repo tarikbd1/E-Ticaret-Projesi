@@ -1,17 +1,58 @@
 'use client';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  // 🚀 MÜHENDİSLİK DOKUNUŞU: Güvenlik Duvarı (Client-Side Bekçi)
+  useEffect(() => {
+    const userStr = localStorage.getItem('user');
+
+    if (!userStr) {
+      // Kullanıcı hiç giriş yapmamışsa şutla
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+
+      if (user.role !== 'admin') {
+        // Kullanıcı giriş yapmış ama admin değilse anasayfaya şutla
+        window.location.href = '/';
+        return;
+      }
+
+      // Her şey yolunda, yetkisi var
+      setIsAuthorized(true);
+    } catch (error) {
+      window.location.href = '/login';
+    }
+  }, []);
 
   // Admin menüsündeki linkleri burada tanımlıyoruz
   const menuItems = [
     { name: 'Gösterge Paneli', path: '/admin', icon: '📊' },
     { name: 'Ürün Yönetimi', path: '/admin/products', icon: '🛍️' },
     { name: 'Sipariş Yönetimi', path: '/admin/orders', icon: '📦' },
-    { name: 'Destek Talepleri', path: '/admin/tickets', icon: '🎧' }, // EKLENEN YENİ LİNK
+    { name: 'Destek Talepleri', path: '/admin/tickets', icon: '🎧' },
   ];
+
+  // Doğrulama yapılırken ekran saniyelik bile olsa gözükmesin diye siyah bekleme ekranı
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+        <p className="text-indigo-400 font-bold text-sm uppercase tracking-widest animate-pulse">
+          YETKİ KONTROL EDİLİYOR...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[calc(100vh-69px)] flex bg-slate-950">
