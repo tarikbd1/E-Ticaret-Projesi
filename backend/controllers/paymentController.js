@@ -3,9 +3,9 @@ const Order = require('../models/Order');
 const Product = require('../models/Product'); // Stok düşmek ve fiyatı doğrulamak için Product modelini çağırıyoruz
 
 const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZICO_API_KEY,
-  secretKey: process.env.IYZICO_SECRET_KEY,
-  uri: process.env.IYZICO_BASE_URL
+  apiKey: 'sandbox-OZw3h4xpQ5Lkc9v424p8bju3C2fZZoo8', // İyzico Sandbox panelinden aldığın kendi Key'ini buraya yapıştır
+  secretKey: 'sandbox-B6fW2J7XUUAhawGGdHxaLRYem2tE2iX1', // İyzico Sandbox panelinden aldığın kendi Secret'ını buraya yapıştır
+  uri: 'https://sandbox-api.iyzipay.com'
 });
 
 exports.createPayment = async (req, res) => {
