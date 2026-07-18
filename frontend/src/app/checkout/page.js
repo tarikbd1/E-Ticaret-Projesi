@@ -91,7 +91,9 @@ export default function CheckoutPage() {
 
   const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * (item.qty || 1)), 0);
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#020617]"></div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 pt-[100px] pb-20">
@@ -126,8 +128,25 @@ export default function CheckoutPage() {
             <div className="bg-slate-900/60 p-6 rounded-[2rem] border border-slate-800/80 sticky top-28">
               <h3 className="text-lg font-bold text-white mb-4">Ödenecek Tutar</h3>
               <p className="text-2xl font-black text-indigo-400 mb-6">{totalPrice.toLocaleString('tr-TR')} TL</p>
-              <button type="submit" disabled={loading} className={`w-full font-bold text-white py-4 rounded-xl ${loading ? 'bg-slate-700' : 'bg-emerald-600 hover:bg-emerald-500'}`}>
-                {loading ? 'İşleniyor...' : 'Ödemeyi Tamamla'}
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-3 ${
+                  loading ? 'bg-slate-700 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99]'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    {/* Dönen Yükleme Animasyonu (Tailwind SVG) */}
+                    <svg className="animate-spin h-5 w-5 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    İşlem Sağlanıyor...
+                  </>
+                ) : (
+                  'Ödemeyi Tamamla'
+                )}
               </button>
             </div>
           </div>

@@ -2,6 +2,39 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 
+// GET /api/orders/stats - Admin Dashboard İstatistiklerini Getir (YENİ EKLENEN MOTOR)
+router.get('/stats', async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    let totalOrders = orders.length;
+    let totalRevenue = 0;
+    let totalItemsSold = 0;
+
+    orders.forEach(order => {
+      totalRevenue += (order.totalAmount || 0);
+
+      if (order.items && order.items.length > 0) {
+        order.items.forEach(item => {
+          totalItemsSold += (item.quantity || 1);
+        });
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        totalOrders,
+        totalRevenue,
+        totalItemsSold
+      }
+    });
+  } catch (error) {
+    console.error("İstatistik hesaplama hatası:", error);
+    res.status(500).json({ success: false, message: 'İstatistikler hesaplanırken bir hata oluştu.' });
+  }
+});
+
 // GET /api/orders - Admin için tüm siparişleri getir
 router.get('/', async (req, res) => {
   try {
