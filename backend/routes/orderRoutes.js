@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 
-// GET /api/orders/stats - Admin Dashboard İstatistiklerini Getir (YENİ EKLENEN MOTOR)
+// GET /api/orders/stats - Admin Dashboard İstatistiklerini Getir
 router.get('/stats', async (req, res) => {
   try {
     const orders = await Order.find();
@@ -38,7 +38,6 @@ router.get('/stats', async (req, res) => {
 // GET /api/orders - Admin için tüm siparişleri getir
 router.get('/', async (req, res) => {
   try {
-    // populate ile siparişi veren kullanıcının adını ve e-postasını da çekiyoruz
     const orders = await Order.find().populate('user', 'name email').sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: orders });
   } catch (error) {
@@ -50,10 +49,7 @@ router.get('/', async (req, res) => {
 router.get('/my-orders/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    
-    // Sadece o user ID'sine ait siparişleri bul ve tarihe göre tersten sırala
     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
-    
     res.status(200).json({ success: true, data: orders });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Siparişleriniz yüklenirken bir hata oluştu.' });
@@ -82,6 +78,22 @@ router.put('/:id', async (req, res) => {
     res.status(200).json({ success: true, data: updatedOrder });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Sipariş durumu güncellenirken hata oluştu.' });
+  }
+});
+
+// DELETE /api/orders/:id - YENİ EKLENEN: Adminin siparişi silmesi
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    
+    if (!deletedOrder) {
+      return res.status(404).json({ success: false, message: 'Silinecek sipariş bulunamadı.' });
+    }
+    
+    res.status(200).json({ success: true, message: 'Sipariş veritabanından başarıyla uçuruldu.' });
+  } catch (error) {
+    console.error("Sipariş silme hatası:", error);
+    res.status(500).json({ success: false, message: 'Sipariş silinirken sunucu hatası oluştu.' });
   }
 });
 

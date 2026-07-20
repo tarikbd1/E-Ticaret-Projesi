@@ -6,7 +6,8 @@ const addressSchema = new mongoose.Schema({
   title: { type: String, required: true },
   city: { type: String, required: true },
   district: { type: String, required: true },
-  fullAddress: { type: String, required: true }
+  fullAddress: { type: String, required: true },
+  zipCode: { type: String }
 });
 
 const userSchema = new mongoose.Schema({

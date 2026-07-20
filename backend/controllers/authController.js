@@ -56,7 +56,8 @@ const getUserProfile = async (req, res) => {
         email: user.email, 
         role: user.role, 
         createdAt: user.createdAt, 
-        loginCount: user.loginCount
+        loginCount: user.loginCount,
+        addresses: user.addresses
       });
     } else {
       res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
@@ -175,4 +176,81 @@ const resetPassword = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-module.exports = { registerUser, loginUser, getUserProfile, changePassword, forgotPassword, resetPassword };
+// 7. YENİ EKLENEN: ADRES EKLEME
+// YENİ EKLENEN: ADRES EKLEME (Posta Kodu Dahil)
+const addAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // Formdan gelen adres bilgilerine zipCode'u da ekledik
+    const { title, city, district, fullAddress, zipCode } = req.body;
+
+    // Kullanıcının adresler dizisine yeni adresi it
+    user.addresses.push({ title, city, district, fullAddress, zipCode });
+    
+    await user.save();
+
+    res.status(201).json({ success: true, message: 'Adres başarıyla eklendi', addresses: user.addresses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 8. YENİ EKLENEN: ADRES SİLME
+const deleteAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı.' });
+    }
+
+    // URL'den gelen adres ID'sini al
+    const addressId = req.params.addressId;
+
+    // Kullanıcının mevcut adreslerinden bu ID'ye sahip olanı filtreleyip at (sil)
+    user.addresses = user.addresses.filter(addr => addr._id.toString() !== addressId);
+    
+    // Değişikliği kaydet
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Adres başarıyla silindi', addresses: user.addresses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// YENİ EKLENEN: ADRES GÜNCELLEME (PUT)
+const updateAddress = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı.' });
+
+    const { title, city, district, fullAddress, zipCode } = req.body;
+    const addressId = req.params.addressId;
+
+    // Kullanıcının adresleri içinden ilgili adresi bul (Mongoose'un .id() metodu)
+    const address = user.addresses.id(addressId);
+    if (!address) return res.status(404).json({ success: false, message: 'Adres bulunamadı.' });
+
+    // Yeni verileri eskisinin üstüne yaz
+    address.title = title || address.title;
+    address.city = city || address.city;
+    address.district = district || address.district;
+    address.fullAddress = fullAddress || address.fullAddress;
+    address.zipCode = zipCode || address.zipCode;
+
+    await user.save();
+    res.status(200).json({ success: true, message: 'Adres başarıyla güncellendi', addresses: user.addresses });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+module.exports = { registerUser, loginUser, getUserProfile, changePassword, forgotPassword, resetPassword, addAddress, deleteAddress, updateAddress };

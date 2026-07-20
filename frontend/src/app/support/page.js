@@ -207,7 +207,7 @@ export default function SupportPage() {
     );
   }
 
-  // 4️⃣ ANA DESTEK EKRANI (Senin Tasarım)
+  // 4️⃣ ANA DESTEK EKRANI
   return (
     <div className="min-h-[calc(100vh-69px)] bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
       <ToastContainer position="top-right" theme="dark" />
@@ -247,15 +247,15 @@ export default function SupportPage() {
             <div className="bg-indigo-600 p-8 md:col-span-2 flex flex-col justify-between text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -mr-20 -mt-20"></div>
               <div>
-                <h2 className="text-2xl font-extrabold mb-2">Bize Ulaşın</h2>
+                <h2 className="text-2xl font-extrabold mb-2">Destek Ekibi</h2>
                 <p className="text-indigo-200 text-sm mb-8 leading-relaxed">
                   Siparişlerinizle ilgili bir sorun mu var veya sormak istediğiniz bir şey mi bulunuyor? Formu doldurun, size hemen yardımcı olalım.
                 </p>
               </div>
               <div className="space-y-6 text-sm">
-                <div className="flex items-center gap-4"><span className="p-2 bg-indigo-500/50 rounded-lg">📧</span><span>destek@eticaret.com</span></div>
+                <div className="flex items-center gap-4"><span className="p-2 bg-indigo-500/50 rounded-lg">📧</span><span>destek@sisteme-ticaret.com</span></div>
                 <div className="flex items-center gap-4"><span className="p-2 bg-indigo-500/50 rounded-lg">📞</span><span>+90 (850) 123 45 67</span></div>
-                <div className="flex items-center gap-4"><span className="p-2 bg-indigo-500/50 rounded-lg">📍</span><span>Teknoloji Vadisi, İstanbul</span></div>
+                <div className="flex items-center gap-4"><span className="p-2 bg-indigo-500/50 rounded-lg">📍</span><span>Teknopark AR-GE Binası, Atakum / Samsun</span></div>
               </div>
             </div>
 
