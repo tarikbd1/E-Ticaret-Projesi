@@ -30,7 +30,7 @@ export default function ProductDetailPage({ params }) {
         if (data.success) {
           setProduct(data.data);
           
-          // İlk yüklemede ana resmi belirle (images dizisi varsa ilkini, yoksa tekli resmi al)
+          // İlk yüklemede ana resmi belirle
           const initialImage = data.data.images?.[0] || data.data.image || data.data.imageUrl;
           setMainImage(initialImage);
         }
@@ -114,7 +114,7 @@ export default function ProductDetailPage({ params }) {
   if (loading) return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center font-bold">Yükleniyor...</div>;
   if (!product) return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center font-bold">Ürün bulunamadı.</div>;
 
-  // 📸 YENİ: Tüm resimleri bir dizide topluyoruz. Veritabanından array (images) veya string (image) gelmesine göre kendini ayarlar.
+  // 📸 Tüm resimleri bir dizide topluyoruz.
   const allImages = product.images?.length > 0 
     ? product.images 
     : (product.image || product.imageUrl ? [product.image || product.imageUrl] : []);
@@ -144,9 +144,22 @@ export default function ProductDetailPage({ params }) {
         {/* ================= SOL TARAF: FOTOĞRAF GALERİSİ ================= */}
         <div className="lg:col-span-5 space-y-4">
           
-          {/* ANA BÜYÜK FOTOĞRAF */}
-          <div className="bg-[#050B14] aspect-square rounded-[2rem] flex items-center justify-center relative p-4 sm:p-8 border border-slate-800/50 shadow-[0_0_40px_-15px_rgba(99,102,241,0.15)] group overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent opacity-60"></div>
+          {/* 🚀 ANA BÜYÜK FOTOĞRAF KUTUSU */}
+          <div className="bg-[#050B14] aspect-square rounded-[2rem] flex items-center justify-center relative border border-slate-800/50 shadow-[0_0_40px_-15px_rgba(99,102,241,0.15)] group overflow-hidden">
+            
+            {/* ❤️ ARKA PLAN BLUR EFEKTİ */}
+            {mainImage && (
+              <>
+                <img 
+                  key={`blur-${mainImage}`}
+                  src={mainImage} 
+                  alt="blur-bg" 
+                  className="absolute inset-0 w-full h-full object-cover opacity-30 blur-3xl scale-125 z-0 transition-all duration-700"
+                />
+                <div className="absolute inset-0 bg-[#050B14]/60 z-0"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-transparent to-transparent opacity-60 z-0"></div>
+              </>
+            )}
 
             {/* Favori Butonu */}
             <button
@@ -164,32 +177,38 @@ export default function ProductDetailPage({ params }) {
               </svg>
             </button>
 
+            {/* ANA RESİM (p-8 ve p-12 değerlerini direkt resme verdik ki arkadaki blur tam köşelere kadar dolsun) */}
             {mainImage ? (
               <img 
-                key={mainImage} // Key eklemek resim değiştiğinde animasyonun tetiklenmesini sağlar
+                key={mainImage} 
                 src={mainImage} 
                 alt={product.name} 
-                className="w-full h-full object-contain relative z-10 drop-shadow-[0_15px_25px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-500" 
+                className="w-full h-full object-contain p-8 sm:p-12 relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-500" 
               />
             ) : (
-              <span className="text-9xl drop-shadow-2xl z-10 opacity-80">📦</span>
+              <span className="text-9xl drop-shadow-2xl z-10 opacity-80 relative">📦</span>
             )}
           </div>
 
-          {/* 📸 KÜÇÜK FOTOĞRAFLAR (THUMBNAILS) */}
+          {/* 📸 KÜÇÜK FOTOĞRAFLAR (THUMBNAILS) - Blur efekti bunlara da eklendi */}
           {allImages.length > 0 && (
             <div className="grid grid-cols-4 gap-3">
               {allImages.map((img, index) => (
                 <div 
                   key={index} 
                   onClick={() => setMainImage(img)}
-                  className={`aspect-square rounded-xl flex items-center justify-center border cursor-pointer transition-all overflow-hidden bg-[#050B14] ${
+                  className={`relative aspect-square rounded-xl flex items-center justify-center border cursor-pointer transition-all overflow-hidden bg-[#050B14] ${
                     mainImage === img 
                       ? 'border-indigo-500 ring-2 ring-indigo-500/40 opacity-100' 
                       : 'border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-600'
                   }`}
                 >
-                  <img src={img} className="w-full h-full object-cover" alt={`${product.name} - Görsel ${index + 1}`} />
+                  {/* Thumbnail Arka Plan Blur */}
+                  <img src={img} className="absolute inset-0 w-full h-full object-cover opacity-40 blur-xl scale-125 z-0" alt="" />
+                  <div className="absolute inset-0 bg-[#050B14]/50 z-0"></div>
+                  
+                  {/* Thumbnail Ön Resim */}
+                  <img src={img} className="w-full h-full object-contain p-2 relative z-10" alt={`${product.name} - Görsel ${index + 1}`} />
                 </div>
               ))}
             </div>
