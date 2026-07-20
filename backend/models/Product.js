@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   price: { type: Number, required: true, default: 0 },
-  image: { type: String, required: true },
+  image: { type: String, required: true }, // 👑 Ana kapak resmi
+  images: [{ type: String }],              // 🚀 YENİ: Ekstra resimler (Dizi halinde)
   stock: { type: Number, required: true, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });

@@ -14,6 +14,9 @@ export default function ProductDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
+  // 📸 YENİ: Ana ekranda gösterilecek aktif resim state'i
+  const [mainImage, setMainImage] = useState(null);
+
   // ❤️ FAVORİ STATE'LERİ
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
@@ -24,7 +27,13 @@ export default function ProductDetailPage({ params }) {
     const fetchProduct = async () => {
       try {
         const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
-        if (data.success) setProduct(data.data);
+        if (data.success) {
+          setProduct(data.data);
+          
+          // İlk yüklemede ana resmi belirle (images dizisi varsa ilkini, yoksa tekli resmi al)
+          const initialImage = data.data.images?.[0] || data.data.image || data.data.imageUrl;
+          setMainImage(initialImage);
+        }
       } catch (error) {
         toast.error('Ürün detayları çekilemedi!');
       } finally {
@@ -34,7 +43,7 @@ export default function ProductDetailPage({ params }) {
     fetchProduct();
   }, [id]);
 
-  // ❤️ YENİ: Kullanıcı giriş yapmışsa, bu ürün favorilerinde mi diye kontrol et
+  // Favori kontrolü
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       const token = localStorage.getItem('token');
@@ -50,14 +59,14 @@ export default function ProductDetailPage({ params }) {
           setIsFavorite(favoriteIds.includes(id));
         }
       } catch (error) {
-        // Sessizce geç, favori durumu kritik değil
+        // Sessizce geç
       }
     };
 
     checkFavoriteStatus();
   }, [id]);
 
-  // ❤️ YENİ: Favoriye ekleme / çıkarma
+  // Favoriye ekleme / çıkarma
   const toggleFavorite = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -95,7 +104,6 @@ export default function ProductDetailPage({ params }) {
     }
   };
 
-  
   const addToCartAction = useCartStore((state) => state.addToCart);
 
   const addToCart = () => {
@@ -106,13 +114,16 @@ export default function ProductDetailPage({ params }) {
   if (loading) return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center font-bold">Yükleniyor...</div>;
   if (!product) return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center font-bold">Ürün bulunamadı.</div>;
 
-  const imageSrc = product.image || product.imageUrl;
+  // 📸 YENİ: Tüm resimleri bir dizide topluyoruz. Veritabanından array (images) veya string (image) gelmesine göre kendini ayarlar.
+  const allImages = product.images?.length > 0 
+    ? product.images 
+    : (product.image || product.imageUrl ? [product.image || product.imageUrl] : []);
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 pt-[70px] pb-20">
       <ToastContainer theme="dark" />
       
-      {/* 🚀 ÜST BAR: Geri Dön Butonu */}
+      {/* ÜST BAR: Geri Dön Butonu */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 pb-6">
         <Link 
           href="/products" 
@@ -127,15 +138,17 @@ export default function ProductDetailPage({ params }) {
         </Link>
       </div>
 
-      {/* 🔥 ANA İÇERİK: İkiye Bölünmüş Düzen */}
+      {/* ANA İÇERİK: İkiye Bölünmüş Düzen */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 lg:grid-cols-12 gap-10">
         
-        {/* ================= SOL TARAF: FOTOĞRAF ================= */}
+        {/* ================= SOL TARAF: FOTOĞRAF GALERİSİ ================= */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-[#050B14] aspect-square rounded-[2rem] flex items-center justify-center relative p-8 border border-slate-800/50 shadow-[0_0_40px_-15px_rgba(99,102,241,0.15)] group overflow-hidden">
+          
+          {/* ANA BÜYÜK FOTOĞRAF */}
+          <div className="bg-[#050B14] aspect-square rounded-[2rem] flex items-center justify-center relative p-4 sm:p-8 border border-slate-800/50 shadow-[0_0_40px_-15px_rgba(99,102,241,0.15)] group overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent opacity-60"></div>
 
-            {/* ❤️ YENİ: Favori Butonu (Görselin sağ üst köşesi) */}
+            {/* Favori Butonu */}
             <button
               onClick={toggleFavorite}
               disabled={favoriteLoading}
@@ -146,45 +159,46 @@ export default function ProductDetailPage({ params }) {
                   : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/40'
               } ${favoriteLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-5 w-5" 
-                fill={isFavorite ? 'currentColor' : 'none'} 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
 
-            {imageSrc ? (
+            {mainImage ? (
               <img 
-                src={imageSrc} 
+                key={mainImage} // Key eklemek resim değiştiğinde animasyonun tetiklenmesini sağlar
+                src={mainImage} 
                 alt={product.name} 
-                className="w-full h-full object-contain relative z-10 drop-shadow-[0_20px_30px_rgba(0,0,0,0.4)] group-hover:scale-105 transition-transform duration-700 ease-out" 
+                className="w-full h-full object-contain relative z-10 drop-shadow-[0_15px_25px_rgba(0,0,0,0.5)] animate-in fade-in zoom-in-95 duration-500" 
               />
             ) : (
               <span className="text-9xl drop-shadow-2xl z-10 opacity-80">📦</span>
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-3">
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className={`aspect-square rounded-xl flex items-center justify-center border cursor-pointer transition-colors ${item === 1 ? 'bg-[#050B14] border-indigo-500/50' : 'bg-slate-900 border-slate-800 hover:border-slate-600'}`}>
-                 {imageSrc ? (
-                    <img src={imageSrc} className="w-2/3 h-2/3 object-contain opacity-70" alt="" />
-                 ) : (
-                    <span className="text-2xl opacity-50">📦</span>
-                 )}
-              </div>
-            ))}
-          </div>
+          {/* 📸 KÜÇÜK FOTOĞRAFLAR (THUMBNAILS) */}
+          {allImages.length > 0 && (
+            <div className="grid grid-cols-4 gap-3">
+              {allImages.map((img, index) => (
+                <div 
+                  key={index} 
+                  onClick={() => setMainImage(img)}
+                  className={`aspect-square rounded-xl flex items-center justify-center border cursor-pointer transition-all overflow-hidden bg-[#050B14] ${
+                    mainImage === img 
+                      ? 'border-indigo-500 ring-2 ring-indigo-500/40 opacity-100' 
+                      : 'border-slate-800 opacity-60 hover:opacity-100 hover:border-slate-600'
+                  }`}
+                >
+                  <img src={img} className="w-full h-full object-cover" alt={`${product.name} - Görsel ${index + 1}`} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ================= SAĞ TARAF: ÜRÜN BİLGİLERİ ================= */}
         <div className="lg:col-span-7 flex flex-col justify-start py-2">
           
-          {/* Etiketler */}
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-md text-[11px] font-black tracking-widest uppercase border border-emerald-500/20">
               Kargo Bedava
@@ -195,37 +209,22 @@ export default function ProductDetailPage({ params }) {
             </span>
           </div>
 
-          {/* Ürün Adı */}
           <h1 className="text-3xl sm:text-4xl font-black text-white mb-4 leading-tight">
             {product.name}
           </h1>
 
-          {/* Fiyat */}
           <div className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-cyan-300 mb-6 drop-shadow-sm">
             {product.price.toLocaleString('tr-TR')} TL
           </div>
 
-          {/* İŞLEM ALANI: Küçültüldü ve Yukarı Alındı */}
           <div className="flex flex-col sm:flex-row items-stretch gap-3 mb-8">
             
-            {/* Adet Seçici (Daha Kibar) */}
             <div className="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl w-full sm:w-28 h-[50px] overflow-hidden shrink-0">
-              <button 
-                onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}
-                className="w-10 h-full text-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center"
-              >
-                -
-              </button>
+              <button onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)} className="w-10 h-full text-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center">-</button>
               <span className="font-bold text-base text-white">{quantity}</span>
-              <button 
-                onClick={() => setQuantity(q => q < product.stock ? q + 1 : q)}
-                className="w-10 h-full text-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center"
-              >
-                +
-              </button>
+              <button onClick={() => setQuantity(q => q < product.stock ? q + 1 : q)} className="w-10 h-full text-xl text-slate-400 hover:bg-slate-800 hover:text-white transition-colors flex items-center justify-center">+</button>
             </div>
 
-            {/* Sepete Ekle Butonu (Daha Kibar) */}
             <button 
               onClick={addToCart}
               disabled={product.stock === 0}
@@ -241,7 +240,6 @@ export default function ProductDetailPage({ params }) {
               {product.stock > 0 ? 'Sepete Ekle' : 'Tükendi'}
             </button>
 
-            {/* ❤️ YENİ: Sepete Ekle butonunun yanında ikinci bir favori butonu (masaüstünde daha görünür) */}
             <button
               onClick={toggleFavorite}
               disabled={favoriteLoading}
@@ -252,19 +250,12 @@ export default function ProductDetailPage({ params }) {
               } ${favoriteLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
             >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-5 w-5" 
-                fill={isFavorite ? 'currentColor' : 'none'} 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
           </div>
 
-          {/* AÇIKLAMA ALANI: Butonun hemen altına taşındı */}
           <div className="border-t border-slate-800/60 pt-6">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-3">
               Ürün Açıklaması

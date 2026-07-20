@@ -303,25 +303,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-69px)] bg-slate-950 text-slate-100 p-4 md:p-8">
+    <div className="min-h-[calc(100vh-69px)] bg-slate-950 text-slate-100 p-4 md:p-10">
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
       
-      <div className="w-full max-w-6xl mx-auto space-y-6">
+      <div className="w-full max-w-7xl mx-auto space-y-8">
         
         {/* ÜST BANNER */}
-        <div className="w-full p-6 md:p-8 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl shadow-2xl border border-indigo-500/20">
+        <div className="w-full p-7 md:p-10 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl shadow-2xl border border-indigo-500/20">
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
             Hoş Geldin, {detectedName}! 👋
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Hesap ayarlarına ve sipariş detaylarına buradan ulaşabilirsin.</p>
+          <p className="text-sm text-slate-400 mt-2">Hesap ayarlarına ve sipariş detaylarına buradan ulaşabilirsin.</p>
         </div>
 
         {/* ANA İÇERİK ALANI */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full items-stretch">
           
           {/* SOL BÖLÜM: PROFİL PANELİ */}
-          <div className="bg-slate-900 rounded-3xl p-6 border border-slate-800 flex flex-col justify-between shadow-xl h-full">
-            <div className="space-y-5">
+          <div className="lg:col-span-4 bg-slate-900 rounded-3xl p-7 border border-slate-800 flex flex-col justify-between shadow-xl h-full">
+            <div className="space-y-6">
               
               <div className="flex items-center gap-4 border-b border-slate-800 pb-4">
                 <div className="w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-xl font-black text-white shadow-lg shadow-indigo-500/20">
@@ -389,30 +389,30 @@ export default function DashboardPage() {
           </div>
 
           {/* SAĞ BÖLÜM: MÜŞTERİ KARTLARI */}
-          <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* KART 1: SİPARİŞ GEÇMİŞİ */}
-            <div className="p-6 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-emerald-500/30 group">
+            <div className="p-7 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-emerald-500/30 group">
               <div className="flex justify-between items-start">
                 <span className="px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-emerald-400 bg-emerald-500/10 rounded-md border border-emerald-500/20 flex items-center gap-1.5">
                   📦 Siparişlerim
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-slate-200 mt-5">Sipariş Geçmişi</h3>
-              <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">Geçmiş siparişlerinizi ve kargo durumlarını buradan takip edebilirsiniz.</p>
+              <h3 className="text-lg font-bold text-slate-200 mt-6">Sipariş Geçmişi</h3>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">Geçmiş siparişlerinizi ve kargo durumlarını buradan takip edebilirsiniz.</p>
               
-              <div className="mt-4 flex-1 overflow-y-auto max-h-[220px] pr-1 space-y-3">
+              <div className="mt-5 flex-1 overflow-y-auto max-h-[260px] pr-1 space-y-3.5">
                 {ordersLoading ? (
-                  <div className="h-full min-h-[100px] flex items-center justify-center">
+                  <div className="h-full min-h-[120px] flex items-center justify-center">
                     <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
                   </div>
                 ) : orders.length === 0 ? (
-                  <div className="h-full min-h-[100px] p-4 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
+                  <div className="h-full min-h-[120px] p-5 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
                     <span className="text-sm font-medium text-slate-500">Henüz bir siparişiniz bulunmuyor.</span>
                   </div>
                 ) : (
                   orders.map((order) => (
-                    <div key={order._id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-emerald-500/30 transition-colors">
+                    <div key={order._id} className="p-4 bg-slate-950 rounded-xl border border-slate-800 hover:border-emerald-500/30 transition-colors">
                       <div className="flex justify-between items-start gap-2">
                         <div>
                           <p className="text-[10px] text-slate-500 font-medium">
@@ -436,12 +436,12 @@ export default function DashboardPage() {
             </div>
 
             {/* KART 2: ADRES BİLGİLERİ */}
-            <div className="p-6 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-blue-500/30 group">
+            <div className="p-7 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-blue-500/30 group">
               <div>
                 <span className="px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-blue-400 bg-blue-500/10 rounded-md border border-blue-500/20 flex items-center gap-1.5 w-fit">
                   📍 Adreslerim
                 </span>
-                <div className="flex justify-between items-center mt-5">
+                <div className="flex justify-between items-center mt-6">
                   <h3 className="text-lg font-bold text-slate-200">Kayıtlı Adresler</h3>
                   <button 
                     onClick={() => { setEditingAddressId(null); setIsAddressModalOpen(true); }}
@@ -450,25 +450,25 @@ export default function DashboardPage() {
                     + Yeni Ekle
                   </button>
                 </div>
-                <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">Teslimat ve fatura adreslerinizi düzenleyip yenilerini ekleyebilirsiniz.</p>
+                <p className="text-xs text-slate-400 mt-2 leading-relaxed">Teslimat ve fatura adreslerinizi düzenleyip yenilerini ekleyebilirsiniz.</p>
               </div>
               
               {/* ADRES LİSTESİ RENDER ALANI */}
-              <div className="mt-6 flex-1 overflow-y-auto max-h-[160px] pr-1 space-y-3">
+              <div className="mt-6 flex-1 overflow-y-auto max-h-[260px] pr-1 space-y-3.5">
                 {addresses.length === 0 ? (
-                  <div className="h-full p-4 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
+                  <div className="h-full min-h-[120px] p-5 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
                     <span className="text-xs text-slate-500">Henüz kayıtlı bir adresiniz yok.</span>
                   </div>
                 ) : (
                   addresses.map((addr) => (
-                    <div key={addr._id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-start group/addr hover:border-blue-500/30 transition-colors">
+                    <div key={addr._id} className="p-4 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-start group/addr hover:border-blue-500/30 transition-colors">
                       <div className="pr-3">
                         <div className="flex items-center gap-2">
                           <h4 className="text-xs font-bold text-blue-400">{addr.title}</h4>
                           {addr.zipCode && <span className="text-[9px] px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded-md">{addr.zipCode}</span>}
                         </div>
-                        <p className="text-[11px] text-slate-300 mt-1 line-clamp-2">{addr.fullAddress}</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{addr.district} / {addr.city}</p>
+                        <p className="text-[11px] text-slate-300 mt-1.5 line-clamp-2 leading-relaxed">{addr.fullAddress}</p>
+                        <p className="text-[10px] text-slate-500 mt-1">{addr.district} / {addr.city}</p>
                       </div>
                       <div className="flex flex-col items-center gap-1 opacity-0 group-hover/addr:opacity-100 transition-opacity shrink-0">
                         <button 
@@ -498,14 +498,14 @@ export default function DashboardPage() {
             </div>
 
             {/* KART 3: FAVORİLERİM */}
-            <div className="p-6 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col justify-between transition-all hover:border-rose-500/30 group md:col-span-2">
+            <div className="p-7 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col justify-between transition-all hover:border-rose-500/30 group md:col-span-2">
               <div className="flex justify-between items-start">
                 <div>
                   <span className="px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-rose-400 bg-rose-500/10 rounded-md border border-rose-500/20 flex items-center gap-1.5 w-fit">
                     ❤️ Favoriler
                   </span>
-                  <h3 className="text-lg font-bold text-slate-200 mt-4">Beğendiğiniz Ürünler</h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <h3 className="text-lg font-bold text-slate-200 mt-5">Beğendiğiniz Ürünler</h3>
+                  <p className="text-xs text-slate-400 mt-2 leading-relaxed">
                     İlginizi çeken ve daha sonra almak için kaydettiğiniz ürünlerin listesi.
                   </p>
                 </div>
@@ -513,7 +513,7 @@ export default function DashboardPage() {
                   Alışverişe Başla
                 </button>
               </div>
-              <div className="mt-6 flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="mt-7 flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
                 {favoritesLoading ? (
                   <div className="min-w-[120px] h-[100px] flex items-center justify-center">
                     <div className="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>

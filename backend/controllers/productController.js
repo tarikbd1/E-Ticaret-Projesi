@@ -15,10 +15,23 @@ const getProducts = async (req, res) => {
 // @access  Private/Admin (Sadece yöneticiler)
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, image, stock } = req.body;
+    const { name, description, price, image, images, stock } = req.body;
+    
+    // 🚀 YENİ: Ekstra resimleri (images) virgülle ayrılmış string gelirse diziye çevir
+    let imagesArray = [];
+    if (images) {
+      if (Array.isArray(images)) {
+        imagesArray = images;
+      } else if (typeof images === 'string') {
+        // Virgülle böl, sağ/sol boşlukları temizle, boş olanları sil
+        imagesArray = images.split(',').map(url => url.trim()).filter(url => url !== '');
+      }
+    }
     
     const product = new Product({
-      name, description, price, image, stock,
+      name, description, price, image, 
+      images: imagesArray, // 🚀 Diziye çevrilmiş ekstra resimler
+      stock,
       user: req.user._id // protect middleware'inden gelen giriş yapmış adminin ID'si
     });
 
@@ -61,11 +74,20 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+// @desc    Ürünü Güncelle (PUT)
+// @access  Private/Admin
 const updateProduct = async (req, res) => {
   try {
+    let updateData = { ...req.body };
+
+    // 🚀 YENİ: Güncellemede de virgülle ayrılmış ekstra resim gelirse diziye çevir
+    if (updateData.images && typeof updateData.images === 'string') {
+      updateData.images = updateData.images.split(',').map(url => url.trim()).filter(url => url !== '');
+    }
+
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       { new: true, runValidators: true }
     );
 

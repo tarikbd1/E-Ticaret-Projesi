@@ -12,7 +12,7 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false); 
 
-  // 📝 DÜZENLEME MODALI STATE'LERİ (Resim ve Açıklama eklendi)
+  // 📝 DÜZENLEME MODALI STATE'LERİ (Ekstra resimler eklendi)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState({
@@ -21,7 +21,8 @@ export default function AdminProductsPage() {
     price: '',
     stock: '',
     description: '',
-    image: ''
+    image: '',
+    images: '' // 🚀 YENİ: Ekstra resimler için alan
   });
 
   // 🛡️ GÜVENLİK BEKÇİSİ VE İLK VERİ ÇEKME
@@ -86,7 +87,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 📝 MODALI AÇ VE VERİLERİ DOLDUR (Resim ve Açıklama dahil)
+  // 📝 MODALI AÇ VE VERİLERİ DOLDUR
   const handleEditClick = (product) => {
     setEditingProduct({
       _id: product._id,
@@ -94,7 +95,9 @@ export default function AdminProductsPage() {
       price: product.price,
       stock: product.stock ?? product.quantity ?? 0,
       description: product.description || '',
-      image: product.image || product.imageUrl || '' // Backend'den hangisi geliyorsa
+      image: product.image || product.imageUrl || '',
+      // 🚀 YENİ: Gelen dizi formatındaki resimleri text input için virgüllü stringe çeviriyoruz
+      images: product.images && Array.isArray(product.images) ? product.images.join(', ') : '' 
     });
     setIsModalOpen(true);
   };
@@ -113,8 +116,9 @@ export default function AdminProductsPage() {
           name: editingProduct.name,
           price: Number(editingProduct.price),
           stock: Number(editingProduct.stock),
-          description: editingProduct.description, // Yeni eklenen
-          image: editingProduct.image // Yeni eklenen
+          description: editingProduct.description, 
+          image: editingProduct.image, 
+          images: editingProduct.images // 🚀 YENİ: Backend bunu alıp split(',') ile parçalayacak
         },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -224,10 +228,10 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* 🚀 DÜZENLEME MODALI (GELİŞTİRİLMİŞ) */}
+      {/* 🚀 DÜZENLEME MODALI (EKSTRA RESİM ALANI İLE) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
-          <div className="w-full max-w-lg p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 transition-all">
+          <div className="w-full max-w-lg p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 transition-all max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
               <h3 className="text-xl font-bold text-white">Ürünü Düzenle</h3>
               <button 
@@ -277,16 +281,30 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Resim URL */}
+              {/* Ana Resim URL */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Resim URL (Link)</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kapak Resmi URL</label>
                 <input
                   type="text"
-                  placeholder="https://ornek.com/resim.png"
+                  placeholder="https://ornek.com/ana-resim.png"
                   value={editingProduct.image ?? ''}
                   onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
                   className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 />
+              </div>
+
+              {/* 🚀 YENİ: Ekstra Resimler URL */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
+                  Ekstra Resimler <span className="text-slate-500 normal-case">(Linkleri virgülle ayırın)</span>
+                </label>
+                <textarea
+                  rows="2"
+                  placeholder="https://link1.png, https://link2.png"
+                  value={editingProduct.images ?? ''}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, images: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
+                ></textarea>
               </div>
 
               {/* Ürün Açıklaması */}
