@@ -9,7 +9,9 @@ const {
   resetPassword,
   addAddress,       
   deleteAddress,
-  updateAddress    
+  updateAddress,
+  addFavorite,    
+  removeFavorite  
 } = require('../controllers/authController');
 const { protect } = require('../middlewares/authMiddleware');
 
@@ -26,4 +28,9 @@ router.post('/reset-password', resetPassword);            // Linke tıklayınca 
 router.post('/address', protect, addAddress);             // Adres ekleme (sadece giriş yapmışlar)
 router.delete('/address/:addressId', protect, deleteAddress); // Adres silme (sadece giriş yapmışlar)
 router.put('/address/:addressId', protect, updateAddress);
+
+// ❤️ YENİ EKLENEN FAVORİ ROTALARI
+router.post('/favorite/:productId', protect, addFavorite);
+router.delete('/favorite/:productId', protect, removeFavorite);
+
 module.exports = router;

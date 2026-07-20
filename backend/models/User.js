@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
   loginCount: { type: Number, default: 0 }, // YENİ EKLENEN SATIR
   addresses: [addressSchema],
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: { type: Date, default: Date.now }

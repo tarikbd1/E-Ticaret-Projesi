@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
 // 3. PROFILE (Güncellendi: Artık statik 18 değil, gerçek sayacı dönecek)
 const getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    const user = await User.findById(req.user._id).select('-password').populate('favorites');
     if (user) {
       res.json({ 
         success: true, 
@@ -57,7 +57,8 @@ const getUserProfile = async (req, res) => {
         role: user.role, 
         createdAt: user.createdAt, 
         loginCount: user.loginCount,
-        addresses: user.addresses
+        addresses: user.addresses,
+        favorites: user.favorites // 🚀 YENİ
       });
     } else {
       res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
@@ -251,6 +252,43 @@ const updateAddress = async (req, res) => {
   }
 };
 
+// 11. YENİ EKLENEN: FAVORİYE EKLEME
+const addFavorite = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı.' });
 
+    const { productId } = req.params;
 
-module.exports = { registerUser, loginUser, getUserProfile, changePassword, forgotPassword, resetPassword, addAddress, deleteAddress, updateAddress };
+    if (user.favorites.includes(productId)) {
+      return res.status(400).json({ success: false, message: 'Bu ürün zaten favorilerinizde.' });
+    }
+
+    user.favorites.push(productId);
+    await user.save();
+
+    const populatedUser = await user.populate('favorites');
+    res.status(201).json({ success: true, message: 'Ürün favorilere eklendi', favorites: populatedUser.favorites });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// 12. YENİ EKLENEN: FAVORİDEN ÇIKARMA
+const removeFavorite = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı.' });
+
+    const { productId } = req.params;
+    user.favorites = user.favorites.filter(id => id.toString() !== productId);
+    await user.save();
+
+    const populatedUser = await user.populate('favorites');
+    res.status(200).json({ success: true, message: 'Ürün favorilerden çıkarıldı', favorites: populatedUser.favorites });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, getUserProfile, changePassword, forgotPassword, resetPassword, addAddress, deleteAddress, updateAddress, addFavorite, removeFavorite };

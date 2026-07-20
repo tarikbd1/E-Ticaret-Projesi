@@ -3,6 +3,7 @@ import { useState, useEffect, use } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 
 export default function ProductDetailPage({ params }) {
@@ -12,6 +13,12 @@ export default function ProductDetailPage({ params }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+
+  // ❤️ FAVORİ STATE'LERİ
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -26,6 +33,67 @@ export default function ProductDetailPage({ params }) {
     };
     fetchProduct();
   }, [id]);
+
+  // ❤️ YENİ: Kullanıcı giriş yapmışsa, bu ürün favorilerinde mi diye kontrol et
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const { data } = await axios.get('http://localhost:5000/api/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (data.success && data.favorites) {
+          const favoriteIds = data.favorites.map((fav) => fav._id || fav);
+          setIsFavorite(favoriteIds.includes(id));
+        }
+      } catch (error) {
+        // Sessizce geç, favori durumu kritik değil
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [id]);
+
+  // ❤️ YENİ: Favoriye ekleme / çıkarma
+  const toggleFavorite = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Favorilere eklemek için giriş yapmalısınız!');
+      router.push('/login');
+      return;
+    }
+
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        const { data } = await axios.delete(
+          `http://localhost:5000/api/auth/favorite/${id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (data.success) {
+          setIsFavorite(false);
+          toast.success('Ürün favorilerden çıkarıldı!');
+        }
+      } else {
+        const { data } = await axios.post(
+          `http://localhost:5000/api/auth/favorite/${id}`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (data.success) {
+          setIsFavorite(true);
+          toast.success('Ürün favorilere eklendi!');
+        }
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Favori işlemi sırasında bir hata oluştu!');
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   
   const addToCartAction = useCartStore((state) => state.addToCart);
@@ -66,6 +134,29 @@ export default function ProductDetailPage({ params }) {
         <div className="lg:col-span-5 space-y-4">
           <div className="bg-[#050B14] aspect-square rounded-[2rem] flex items-center justify-center relative p-8 border border-slate-800/50 shadow-[0_0_40px_-15px_rgba(99,102,241,0.15)] group overflow-hidden">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-transparent to-transparent opacity-60"></div>
+
+            {/* ❤️ YENİ: Favori Butonu (Görselin sağ üst köşesi) */}
+            <button
+              onClick={toggleFavorite}
+              disabled={favoriteLoading}
+              title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+              className={`absolute top-4 right-4 z-20 w-11 h-11 rounded-full flex items-center justify-center border transition-all active:scale-90 ${
+                isFavorite 
+                  ? 'bg-rose-500/20 border-rose-500/40 text-rose-400' 
+                  : 'bg-slate-900/80 border-slate-700 text-slate-400 hover:text-rose-400 hover:border-rose-500/40'
+              } ${favoriteLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                fill={isFavorite ? 'currentColor' : 'none'} 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </button>
+
             {imageSrc ? (
               <img 
                 src={imageSrc} 
@@ -148,6 +239,28 @@ export default function ProductDetailPage({ params }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
               {product.stock > 0 ? 'Sepete Ekle' : 'Tükendi'}
+            </button>
+
+            {/* ❤️ YENİ: Sepete Ekle butonunun yanında ikinci bir favori butonu (masaüstünde daha görünür) */}
+            <button
+              onClick={toggleFavorite}
+              disabled={favoriteLoading}
+              className={`hidden sm:flex h-[50px] w-[50px] rounded-xl border items-center justify-center transition-all active:scale-90 shrink-0 ${
+                isFavorite 
+                  ? 'bg-rose-500/10 border-rose-500/40 text-rose-400' 
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/40'
+              } ${favoriteLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title={isFavorite ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-5 w-5" 
+                fill={isFavorite ? 'currentColor' : 'none'} 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
             </button>
           </div>
 

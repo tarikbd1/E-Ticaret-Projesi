@@ -33,6 +33,14 @@ export default function DashboardPage() {
     zipCode: '' // 🚀 YENİ: Posta Kodu eklendi
   });
 
+  // 📦 SİPARİŞ GEÇMİŞİ STATE'LERİ
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  // ❤️ FAVORİLER STATE'LERİ
+  const [favorites, setFavorites] = useState([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
+
   // ⏱️ CANLI İSTATİSTİK MOTORU STATE'LERİ
   const [sessionTime, setSessionTime] = useState(0);
 
@@ -77,6 +85,12 @@ export default function DashboardPage() {
             setAddresses(data.addresses);
           }
 
+          // 🚀 YENİ: Favorileri profile response'undan al
+          if (data.favorites) {
+            setFavorites(data.favorites);
+          }
+          setFavoritesLoading(false);
+
           const dynamicCount = data.loginCount !== undefined ? data.loginCount : (userData.loginCount !== undefined ? userData.loginCount : 18);
           setLoginCount(dynamicCount);
 
@@ -89,6 +103,17 @@ export default function DashboardPage() {
           if (exactMatch) {
             setDetectedName(exactMatch);
           }
+
+          // 🚀 YENİ: Kullanıcı bilgisi geldikten sonra siparişlerini çek
+          const userId = userData._id || userData.id;
+          if (userId) {
+            fetchOrders(userId);
+          } else {
+            setOrdersLoading(false);
+          }
+        } else {
+          setOrdersLoading(false);
+          setFavoritesLoading(false);
         }
       } catch (err) {
         console.error('Profil yüklenirken hata oluştu:', err);
@@ -99,8 +124,57 @@ export default function DashboardPage() {
       }
     };
 
+    // 🚀 YENİ: SİPARİŞ GEÇMİŞİNİ ÇEKME MOTORU
+    const fetchOrders = async (userId) => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/orders/my-orders/${userId}`);
+        if (response.data.success) {
+          setOrders(response.data.data);
+        }
+      } catch (err) {
+        console.error('Siparişler yüklenirken hata oluştu:', err);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
     fetchProfile();
   }, [router]);
+
+  // 🚀 YENİ: Sipariş durumuna göre renk paleti
+  const getStatusStyle = (status) => {
+    const styles = {
+      'Bekliyor': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+      'Hazırlanıyor': 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+      'Kargolandı': 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+      'Teslim Edildi': 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+      'İptal Edildi': 'text-rose-400 bg-rose-500/10 border-rose-500/20'
+    };
+    return styles[status] || 'text-slate-400 bg-slate-500/10 border-slate-500/20';
+  };
+
+  // 🚀 YENİ: Tutarı TL formatında göster
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount || 0);
+  };
+
+  // ❤️ YENİ: FAVORİDEN ÇIKARMA
+  const handleRemoveFavorite = async (productId) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.delete(
+        `http://localhost:5000/api/auth/favorite/${productId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        toast.success('Ürün favorilerden çıkarıldı!');
+        setFavorites(response.data.favorites);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Favorilerden çıkarılırken bir hata oluştu!');
+    }
+  };
 
   // ŞİFRE DEĞİŞTİRME POST İŞLEMİ
   const handleChangePassword = async (e) => {
@@ -327,10 +401,37 @@ export default function DashboardPage() {
               <h3 className="text-lg font-bold text-slate-200 mt-5">Sipariş Geçmişi</h3>
               <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">Geçmiş siparişlerinizi ve kargo durumlarını buradan takip edebilirsiniz.</p>
               
-              <div className="mt-auto pt-6 flex-1">
-                <div className="h-full p-4 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
-                  <span className="text-sm font-medium text-slate-500">Henüz bir siparişiniz bulunmuyor.</span>
-                </div>
+              <div className="mt-4 flex-1 overflow-y-auto max-h-[220px] pr-1 space-y-3">
+                {ordersLoading ? (
+                  <div className="h-full min-h-[100px] flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : orders.length === 0 ? (
+                  <div className="h-full min-h-[100px] p-4 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
+                    <span className="text-sm font-medium text-slate-500">Henüz bir siparişiniz bulunmuyor.</span>
+                  </div>
+                ) : (
+                  orders.map((order) => (
+                    <div key={order._id} className="p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-emerald-500/30 transition-colors">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <p className="text-[10px] text-slate-500 font-medium">
+                            {order.createdAt ? new Date(order.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
+                          </p>
+                          <p className="text-xs font-bold text-slate-200 mt-0.5">{formatCurrency(order.totalAmount)}</p>
+                        </div>
+                        <span className={`px-2 py-1 text-[9px] font-bold uppercase tracking-wide rounded-md border shrink-0 ${getStatusStyle(order.status)}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      {order.items && order.items.length > 0 && (
+                        <p className="text-[11px] text-slate-400 mt-2 line-clamp-1">
+                          {order.items.map((item) => `${item.productName} x${item.quantity}`).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -369,17 +470,7 @@ export default function DashboardPage() {
                         <p className="text-[11px] text-slate-300 mt-1 line-clamp-2">{addr.fullAddress}</p>
                         <p className="text-[10px] text-slate-500 mt-0.5">{addr.district} / {addr.city}</p>
                       </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover/addr:opacity-100 transition-opacity shrink-0">
-                        {/* 🚀 YENİ: Düzenle butonu */}
-                        <button 
-                          onClick={() => handleEditClick(addr)}
-                          title="Adresi Düzenle"
-                          className="text-blue-400 p-1.5 hover:bg-blue-500/10 rounded-md"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
+                      <div className="flex flex-col items-center gap-1 opacity-0 group-hover/addr:opacity-100 transition-opacity shrink-0">
                         <button 
                           onClick={() => handleDeleteAddress(addr._id)}
                           title="Adresi Sil"
@@ -387,6 +478,16 @@ export default function DashboardPage() {
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                        {/* 🚀 YENİ: Düzenle butonu artık Sil butonunun altında */}
+                        <button 
+                          onClick={() => handleEditClick(addr)}
+                          title="Adresi Düzenle"
+                          className="text-blue-400 p-1.5 hover:bg-blue-500/10 rounded-md"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                       </div>
@@ -413,10 +514,43 @@ export default function DashboardPage() {
                 </button>
               </div>
               <div className="mt-6 flex items-center gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                <div className="min-w-[120px] h-[100px] bg-slate-950 border border-dashed border-slate-800 rounded-xl flex items-center justify-center">
-                  <span className="text-2xl opacity-50">🛒</span>
-                </div>
-                <div className="text-sm text-slate-500">Favori listeniz şu an boş görünüyor. Vitrindeki ürünleri inceleyip kalp ikonuna tıklayarak buraya ekleyebilirsiniz.</div>
+                {favoritesLoading ? (
+                  <div className="min-w-[120px] h-[100px] flex items-center justify-center">
+                    <div className="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : favorites.length === 0 ? (
+                  <>
+                    <div className="min-w-[120px] h-[100px] bg-slate-950 border border-dashed border-slate-800 rounded-xl flex items-center justify-center">
+                      <span className="text-2xl opacity-50">🛒</span>
+                    </div>
+                    <div className="text-sm text-slate-500">Favori listeniz şu an boş görünüyor. Vitrindeki ürünleri inceleyip kalp ikonuna tıklayarak buraya ekleyebilirsiniz.</div>
+                  </>
+                ) : (
+                  favorites.map((product) => (
+                    <div key={product._id} className="min-w-[160px] max-w-[160px] bg-slate-950 rounded-xl border border-slate-800 hover:border-rose-500/30 transition-colors overflow-hidden group/fav relative shrink-0">
+                      <button
+                        onClick={() => handleRemoveFavorite(product._id)}
+                        title="Favorilerden Çıkar"
+                        className="absolute top-1.5 right-1.5 z-10 w-6 h-6 flex items-center justify-center bg-slate-950/80 hover:bg-rose-500/20 text-rose-400 rounded-md opacity-0 group-hover/fav:opacity-100 transition-opacity"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <div className="w-full h-[90px] bg-slate-900 flex items-center justify-center overflow-hidden">
+                        {product.image ? (
+                          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-2xl opacity-50">🛒</span>
+                        )}
+                      </div>
+                      <div className="p-2.5">
+                        <p className="text-xs font-bold text-slate-200 truncate">{product.name}</p>
+                        <p className="text-[11px] font-semibold text-rose-400 mt-0.5">{formatCurrency(product.price)}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
