@@ -91,6 +91,13 @@ export default function ProductDetailPage({ params }) {
 
   const allImages = product.images?.length > 0 ? product.images : (product.image || product.imageUrl ? [product.image || product.imageUrl] : []);
 
+  // 🚀 YENİ: PNG mi JPEG mi olduğunu URL'den anlayan yardımcı fonksiyon
+  const isPngImage = (url) => {
+    if (!url) return false;
+    const cleanUrl = url.split('?')[0].toLowerCase();
+    return cleanUrl.endsWith('.png');
+  };
+
   return (
     <div className="min-h-screen bg-[#020617] text-slate-200 pt-[70px] pb-20 animate-in fade-in duration-500">
       <ToastContainer theme="dark" />
@@ -132,12 +139,16 @@ export default function ProductDetailPage({ params }) {
               </svg>
             </button>
 
-            {/* 🔥 FARK BURADA: p-8/12 boşluk ekledik, resim artık çok daha uzakta ve ferah duruyor! */}
+            {/* 🚀 GÜNCELLEME: PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
             {mainImage ? (
               <img 
                 src={mainImage} 
                 alt={product.name} 
-                className="w-full h-full object-contain p-8 sm:p-12 z-10 drop-shadow-[0_25px_35px_rgba(0,0,0,0.6)] animate-in fade-in zoom-in-95 duration-500" 
+                className={`w-full h-full z-10 animate-in fade-in zoom-in-95 duration-500 ${
+                  isPngImage(mainImage) 
+                    ? 'object-contain p-8 sm:p-12 drop-shadow-[0_25px_35px_rgba(0,0,0,0.6)]' 
+                    : 'object-cover'
+                }`}
               />
             ) : (
               <span className="text-9xl z-10 opacity-80 relative drop-shadow-2xl">📦</span>
@@ -158,10 +169,10 @@ export default function ProductDetailPage({ params }) {
                   }`}
                 >
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1)_0%,transparent_70%)] z-0"></div>
-                  {/* Thumbnail boşlukları da eklendi */}
+                  {/* 🚀 GÜNCELLEME: PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
                   <img 
                     src={img} 
-                    className="w-full h-full object-contain p-3 z-10" 
+                    className={`w-full h-full z-10 ${isPngImage(img) ? 'object-contain p-3' : 'object-cover'}`}
                     alt={`${product.name} - Görsel ${index + 1}`} 
                   />
                 </div>
