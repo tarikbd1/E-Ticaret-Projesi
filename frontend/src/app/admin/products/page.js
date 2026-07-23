@@ -12,7 +12,6 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false); 
 
-  // 📝 DÜZENLEME MODALI STATE'LERİ (Ekstra resimler eklendi)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState({
@@ -22,10 +21,11 @@ export default function AdminProductsPage() {
     stock: '',
     description: '',
     image: '',
-    images: '' // 🚀 YENİ: Ekstra resimler için alan
+    category: '' // 🚀 YENİ
   });
 
-  // 🛡️ GÜVENLİK BEKÇİSİ VE İLK VERİ ÇEKME
+  const [extraImages, setExtraImages] = useState(['']);
+
   useEffect(() => {
     const checkAdminAndFetch = async () => {
       try {
@@ -68,7 +68,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 🗑️ ÜRÜN SİLME İŞLEMİ
   const handleDelete = async (id) => {
     if (!window.confirm('Bu ürünü silmek istediğinize emin misiniz?')) return;
     
@@ -87,7 +86,6 @@ export default function AdminProductsPage() {
     }
   };
 
-  // 📝 MODALI AÇ VE VERİLERİ DOLDUR
   const handleEditClick = (product) => {
     setEditingProduct({
       _id: product._id,
@@ -96,16 +94,36 @@ export default function AdminProductsPage() {
       stock: product.stock ?? product.quantity ?? 0,
       description: product.description || '',
       image: product.image || product.imageUrl || '',
-      // 🚀 YENİ: Gelen dizi formatındaki resimleri text input için virgüllü stringe çeviriyoruz
-      images: product.images && Array.isArray(product.images) ? product.images.join(', ') : '' 
+      category: product.category || '' // 🚀 YENİ
     });
+
+    const existingExtras = Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : [''];
+    setExtraImages(existingExtras);
+
     setIsModalOpen(true);
   };
 
-  // 🚀 GÜNCELLEMEYİ SUNUCUYA GÖNDER
+  const handleExtraImageChange = (index, value) => {
+    const updated = [...extraImages];
+    updated[index] = value;
+    setExtraImages(updated);
+  };
+
+  const addExtraImageField = () => {
+    setExtraImages([...extraImages, '']);
+  };
+
+  const removeExtraImageField = (index) => {
+    setExtraImages(extraImages.filter((_, i) => i !== index));
+  };
+
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setUpdateLoading(true);
+
+    const cleanedImages = extraImages.map((url) => url.trim()).filter((url) => url !== '');
 
     try {
       const token = localStorage.getItem('token'); 
@@ -116,9 +134,10 @@ export default function AdminProductsPage() {
           name: editingProduct.name,
           price: Number(editingProduct.price),
           stock: Number(editingProduct.stock),
-          description: editingProduct.description, 
-          image: editingProduct.image, 
-          images: editingProduct.images // 🚀 YENİ: Backend bunu alıp split(',') ile parçalayacak
+          description: editingProduct.description,
+          image: editingProduct.image,
+          category: editingProduct.category?.trim() || 'Genel', // 🚀 YENİ
+          images: cleanedImages
         },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -149,7 +168,6 @@ export default function AdminProductsPage() {
     <div className="p-4 md:p-6">
       <ToastContainer position="top-right" theme="dark" />
       
-      {/* ÜST BAŞLIK VE EKLE BUTONU */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-100">Ürün Yönetimi</h1>
@@ -162,7 +180,6 @@ export default function AdminProductsPage() {
         </Link>
       </div>
 
-      {/* ÜRÜNLER TABLOSU */}
       <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -170,6 +187,7 @@ export default function AdminProductsPage() {
               <tr className="bg-slate-950/50 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
                 <th className="p-4 font-bold">GÖRSEL</th>
                 <th className="p-4 font-bold">ÜRÜN ADI</th>
+                <th className="p-4 font-bold">KATEGORİ</th>
                 <th className="p-4 font-bold">FİYAT</th>
                 <th className="p-4 font-bold">STOK</th>
                 <th className="p-4 text-right">İŞLEMLER</th>
@@ -178,7 +196,7 @@ export default function AdminProductsPage() {
             <tbody className="divide-y divide-slate-800">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="p-8 text-center text-slate-500">Sistemde kayıtlı ürün bulunmuyor.</td>
+                  <td colSpan="6" className="p-8 text-center text-slate-500">Sistemde kayıtlı ürün bulunmuyor.</td>
                 </tr>
               ) : (
                 products.map((product) => {
@@ -196,6 +214,11 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="p-4 font-bold text-slate-200 text-sm">
                         {product.name}
+                      </td>
+                      <td className="p-4">
+                        <span className="px-2 py-1 rounded text-xs font-bold border bg-indigo-500/10 text-indigo-400 border-indigo-500/20">
+                          {product.category || 'Genel'}
+                        </span>
                       </td>
                       <td className="p-4 text-slate-300 text-sm">
                         {product.price.toLocaleString('tr-TR')} TL
@@ -228,7 +251,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {/* 🚀 DÜZENLEME MODALI (EKSTRA RESİM ALANI İLE) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
           <div className="w-full max-w-lg p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-700 transition-all max-h-[90vh] overflow-y-auto">
@@ -243,7 +265,6 @@ export default function AdminProductsPage() {
             </div>
 
             <form onSubmit={handleUpdateSubmit} className="space-y-4">
-              {/* Ürün Adı */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Ürün Adı</label>
                 <input
@@ -255,7 +276,18 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              {/* Fiyat ve Stok */}
+              {/* 🚀 YENİ: Kategori */}
+              <div>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kategori</label>
+                <input
+                  type="text"
+                  value={editingProduct.category ?? ''}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
+                  placeholder="Örn: Klavye, Kulaklık, Laptop..."
+                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                />
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Fiyat (TL)</label>
@@ -281,33 +313,53 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Ana Resim URL */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kapak Resmi URL</label>
+                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Ana Görsel URL (Kapak Resmi)</label>
                 <input
                   type="text"
-                  placeholder="https://ornek.com/ana-resim.png"
+                  placeholder="https://ornek.com/resim.png"
                   value={editingProduct.image ?? ''}
                   onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
                   className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
                 />
               </div>
 
-              {/* 🚀 YENİ: Ekstra Resimler URL */}
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-                  Ekstra Resimler <span className="text-slate-500 normal-case">(Linkleri virgülle ayırın)</span>
-                </label>
-                <textarea
-                  rows="2"
-                  placeholder="https://link1.png, https://link2.png"
-                  value={editingProduct.images ?? ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, images: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
-                ></textarea>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Ek Galeri Görselleri</label>
+                  <button
+                    type="button"
+                    onClick={addExtraImageField}
+                    className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-2.5 py-1 rounded-lg transition-colors"
+                  >
+                    + Resim Ekle
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {extraImages.map((url, index) => (
+                    <div key={index} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={url}
+                        onChange={(e) => handleExtraImageChange(index, e.target.value)}
+                        placeholder={`https://ornek.com/resim-${index + 2}.png`}
+                        className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                      />
+                      {extraImages.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeExtraImageField(index)}
+                          className="px-3 bg-slate-950 border border-slate-800 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors text-sm"
+                          title="Bu görseli kaldır"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Ürün Açıklaması */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Ürün Açıklaması</label>
                 <textarea
@@ -319,7 +371,6 @@ export default function AdminProductsPage() {
                 ></textarea>
               </div>
 
-              {/* Butonlar */}
               <div className="flex gap-3 pt-4 mt-6 border-t border-slate-800">
                 <button
                   type="button"

@@ -15,24 +15,23 @@ const getProducts = async (req, res) => {
 // @access  Private/Admin (Sadece yöneticiler)
 const createProduct = async (req, res) => {
   try {
-    const { name, description, price, image, images, stock } = req.body;
+    const { name, description, price, image, images, category, stock } = req.body;
     
-    // 🚀 YENİ: Ekstra resimleri (images) virgülle ayrılmış string gelirse diziye çevir
     let imagesArray = [];
     if (images) {
       if (Array.isArray(images)) {
         imagesArray = images;
       } else if (typeof images === 'string') {
-        // Virgülle böl, sağ/sol boşlukları temizle, boş olanları sil
         imagesArray = images.split(',').map(url => url.trim()).filter(url => url !== '');
       }
     }
     
     const product = new Product({
       name, description, price, image, 
-      images: imagesArray, // 🚀 Diziye çevrilmiş ekstra resimler
+      images: imagesArray,
+      category: category?.trim() || 'Genel', // 🚀 YENİ
       stock,
-      user: req.user._id // protect middleware'inden gelen giriş yapmış adminin ID'si
+      user: req.user._id
     });
 
     const createdProduct = await product.save();
