@@ -1,10 +1,6 @@
 @import "tailwindcss";
 
 :root {
-  /* 🚀 DÜZELTİLDİ: Açık gri (#f3f4f6) yerine sitenin genelinde kullanılan koyu tema rengi.
-     Bu satır sayfa geçişlerindeki "parlama/flaş" sorununun asıl kaynağıydı:
-     Tailwind'in bg-slate-950 class'ı bir cascade layer içinde tanımlı olduğu için,
-     layer dışındaki bu düz `body` kuralı CSS önceliğinde ona baskın çıkıyordu. */
   --background: #020617;
   --foreground: #f1f5f9;
 }
