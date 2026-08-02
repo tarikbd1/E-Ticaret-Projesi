@@ -1,23 +1,40 @@
-"use client";
-import { useState } from 'react';
+'use client';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function NewProductPage() {
   const router = useRouter();
+  
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     description: '',
     image: '',
-    category: '', // 🚀 YENİ
     stock: ''
   });
 
-  const [extraImages, setExtraImages] = useState(['']);
+  const [categories, setCategories] = useState([]); 
+  const [categorySelect, setCategorySelect] = useState('');
 
+  const [extraImages, setExtraImages] = useState(['']);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/categories');
+        const data = await res.json();
+        if (data.success) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error('Kategoriler çekilemedi');
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -42,6 +59,12 @@ export default function NewProductPage() {
     setLoading(true);
     setError('');
 
+    if (!categorySelect) {
+      setError('Lütfen bir kategori seçin!');
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem('token'); 
     const cleanedImages = extraImages.map((url) => url.trim()).filter((url) => url !== '');
 
@@ -56,7 +79,7 @@ export default function NewProductPage() {
           ...formData,
           price: Number(formData.price),
           stock: Number(formData.stock),
-          category: formData.category.trim() || 'Genel', // 🚀 YENİ
+          category: categorySelect, 
           images: cleanedImages
         })
       });
@@ -77,7 +100,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto py-8">
       <div className="flex items-center mb-8">
         <Link href="/admin/products" className="text-slate-400 hover:text-white mr-4">
           ← Geri
@@ -98,15 +121,27 @@ export default function NewProductPage() {
           />
         </div>
 
-        {/* 🚀 YENİ: Kategori */}
+        {/* 🚀 LİNK KALDIRILDI, SADECE LABEL KALDI */}
         <div>
           <label className="block text-slate-300 mb-2 font-medium">Kategori</label>
-          <input 
-            type="text" name="category" value={formData.category} onChange={handleChange}
-            className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500"
-            placeholder="Örn: Klavye, Kulaklık, Laptop..."
-          />
-          <p className="text-xs text-slate-500 mt-1.5">Boş bırakılırsa "Genel" kategorisine eklenir.</p>
+          <div className="relative">
+            <select
+              required
+              value={categorySelect}
+              onChange={(e) => setCategorySelect(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-white focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer"
+            >
+              <option value="" disabled>Kategori seçin...</option>
+              {categories.map(cat => (
+                <option key={cat._id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
+            <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -157,7 +192,6 @@ export default function NewProductPage() {
               + Resim Ekle
             </button>
           </div>
-          <p className="text-xs text-slate-500 mb-3">Ürün detay sayfasında ana görselin altında küçük resim olarak gösterilir.</p>
 
           <div className="space-y-3">
             {extraImages.map((url, index) => (

@@ -19,11 +19,9 @@ const ticketSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    // 🚀 DÜZELTME: 'Cevaplandı' seçeneği eklendi
     enum: ['Açık', 'İnceleniyor', 'Cevaplandı', 'Kapatıldı'], 
     default: 'Açık'
   },
-  // 🚀 YENİ EKLENEN: Adminin yanıtı burada tutulacak
   reply: {
     type: String,
     default: ''

@@ -20,25 +20,25 @@ export default function DashboardPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // 📍 ADRES YÖNETİMİ STATE'LERİ (Posta Kodu Eklendi)
+  // 📍 ADRES YÖNETİMİ STATE'LERİ 
   const [addresses, setAddresses] = useState([]);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [addressLoading, setAddressLoading] = useState(false);
-  const [editingAddressId, setEditingAddressId] = useState(null); // 🚀 YENİ: null ise "ekle", dolu ise "düzenle" modu
+  const [editingAddressId, setEditingAddressId] = useState(null); 
   const [newAddress, setNewAddress] = useState({
     title: '',
     city: '',
     district: '',
     fullAddress: '',
-    zipCode: '' // 🚀 YENİ: Posta Kodu eklendi
+    zipCode: '' 
   });
 
   // 📦 SİPARİŞ GEÇMİŞİ STATE'LERİ
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
-  // ❤️ FAVORİLER STATE'LERİ
-  const [favorites, setFavorites] = useState([]);
+  // ❤️ FAVORİLER STATE'LERİ (Artık gerçek ürün objelerini tutacak)
+  const [favoriteProducts, setFavoriteProducts] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
 
   // ⏱️ CANLI İSTATİSTİK MOTORU STATE'LERİ
@@ -85,12 +85,6 @@ export default function DashboardPage() {
             setAddresses(data.addresses);
           }
 
-          // 🚀 YENİ: Favorileri profile response'undan al
-          if (data.favorites) {
-            setFavorites(data.favorites);
-          }
-          setFavoritesLoading(false);
-
           const dynamicCount = data.loginCount !== undefined ? data.loginCount : (userData.loginCount !== undefined ? userData.loginCount : 18);
           setLoginCount(dynamicCount);
 
@@ -104,7 +98,6 @@ export default function DashboardPage() {
             setDetectedName(exactMatch);
           }
 
-          // 🚀 YENİ: Kullanıcı bilgisi geldikten sonra siparişlerini çek
           const userId = userData._id || userData.id;
           if (userId) {
             fetchOrders(userId);
@@ -113,7 +106,6 @@ export default function DashboardPage() {
           }
         } else {
           setOrdersLoading(false);
-          setFavoritesLoading(false);
         }
       } catch (err) {
         console.error('Profil yüklenirken hata oluştu:', err);
@@ -124,7 +116,6 @@ export default function DashboardPage() {
       }
     };
 
-    // 🚀 YENİ: SİPARİŞ GEÇMİŞİNİ ÇEKME MOTORU
     const fetchOrders = async (userId) => {
       try {
         const response = await axios.get(`http://localhost:5000/api/orders/my-orders/${userId}`);
@@ -141,7 +132,38 @@ export default function DashboardPage() {
     fetchProfile();
   }, [router]);
 
-  // 🚀 YENİ: Sipariş durumuna göre renk paleti
+  // 🚀 YENİ: TARAYICI (LOCALSTORAGE) FAVORİLERİNİ ÇEKME MOTORU
+  useEffect(() => {
+    const fetchFavoriteProducts = async () => {
+      const savedFavs = JSON.parse(localStorage.getItem('favorites')) || [];
+      
+      if (savedFavs.length === 0) {
+        setFavoriteProducts([]);
+        setFavoritesLoading(false);
+        return;
+      }
+
+      try {
+        // Tüm ürünleri çekip favori ID'lerine göre eşleştiriyoruz
+        const response = await axios.get('http://localhost:5000/api/products');
+        if (response.data.success) {
+          const filtered = response.data.data.filter(product => savedFavs.includes(product._id));
+          setFavoriteProducts(filtered);
+        }
+      } catch (error) {
+        console.error('Favori ürünler çekilemedi', error);
+      } finally {
+        setFavoritesLoading(false);
+      }
+    };
+
+    fetchFavoriteProducts();
+
+    // Vitrinden favori eklenip çıkarıldığında bu sayfayı da anında günceller
+    window.addEventListener('favoritesUpdated', fetchFavoriteProducts);
+    return () => window.removeEventListener('favoritesUpdated', fetchFavoriteProducts);
+  }, []);
+
   const getStatusStyle = (status) => {
     const styles = {
       'Bekliyor': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
@@ -153,27 +175,23 @@ export default function DashboardPage() {
     return styles[status] || 'text-slate-400 bg-slate-500/10 border-slate-500/20';
   };
 
-  // 🚀 YENİ: Tutarı TL formatında göster
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount || 0);
   };
 
-  // ❤️ YENİ: FAVORİDEN ÇIKARMA
-  const handleRemoveFavorite = async (productId) => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await axios.delete(
-        `http://localhost:5000/api/auth/favorite/${productId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (response.data.success) {
-        toast.success('Ürün favorilerden çıkarıldı!');
-        setFavorites(response.data.favorites);
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Favorilerden çıkarılırken bir hata oluştu!');
-    }
+  // ❤️ GÜNCELLENDİ: LOCALSTORAGE ÜZERİNDEN FAVORİDEN ÇIKARMA
+  const handleRemoveFavorite = (productId) => {
+    // 1. Tarayıcıdan sil
+    const savedFavs = JSON.parse(localStorage.getItem('favorites')) || [];
+    const updatedFavs = savedFavs.filter(id => id !== productId);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavs));
+    
+    // 2. Ekranda anında sil (State'i güncelle)
+    setFavoriteProducts(prev => prev.filter(p => p._id !== productId));
+    
+    // 3. Diğer pencerelere haber ver
+    window.dispatchEvent(new Event('favoritesUpdated'));
+    toast.info('Ürün favorilerden çıkarıldı!', { position: 'bottom-right', autoClose: 1500 });
   };
 
   // ŞİFRE DEĞİŞTİRME POST İŞLEMİ
@@ -219,7 +237,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 🚀 GÜNCELLENDİ: ADRES EKLEME / GÜNCELLEME POST-PUT İŞLEMİ
+  // ADRES EKLEME / GÜNCELLEME POST-PUT İŞLEMİ
   const handleAddAddress = async (e) => {
     e.preventDefault();
     setAddressLoading(true);
@@ -251,7 +269,7 @@ export default function DashboardPage() {
     }
   };
 
-  // 🚀 YENİ: ADRES SİLME DELETE İŞLEMİ
+  // ADRES SİLME DELETE İŞLEMİ
   const handleDeleteAddress = async (addressId) => {
     if (!window.confirm('Bu adresi silmek istediğinize emin misiniz?')) return;
     
@@ -271,7 +289,6 @@ export default function DashboardPage() {
     }
   };
 
-  // 🚀 YENİ: DÜZENLEME MODUNU BAŞLATMA
   const handleEditClick = (addr) => {
     setEditingAddressId(addr._id);
     setNewAddress({
@@ -284,7 +301,6 @@ export default function DashboardPage() {
     setIsAddressModalOpen(true);
   };
 
-  // 🚀 YENİ: Modal kapatılırken formu ve düzenleme modunu sıfırlayan yardımcı fonksiyon
   const closeAddressModal = () => {
     setIsAddressModalOpen(false);
     setEditingAddressId(null);
@@ -453,7 +469,6 @@ export default function DashboardPage() {
                 <p className="text-xs text-slate-400 mt-2 leading-relaxed">Teslimat ve fatura adreslerinizi düzenleyip yenilerini ekleyebilirsiniz.</p>
               </div>
               
-              {/* ADRES LİSTESİ RENDER ALANI */}
               <div className="mt-6 flex-1 overflow-y-auto max-h-[260px] pr-1 space-y-3.5">
                 {addresses.length === 0 ? (
                   <div className="h-full min-h-[120px] p-5 bg-slate-950 rounded-xl border border-dashed border-slate-800 flex items-center justify-center text-center">
@@ -480,7 +495,6 @@ export default function DashboardPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
                         </button>
-                        {/* 🚀 YENİ: Düzenle butonu artık Sil butonunun altında */}
                         <button 
                           onClick={() => handleEditClick(addr)}
                           title="Adresi Düzenle"
@@ -509,7 +523,7 @@ export default function DashboardPage() {
                     İlginizi çeken ve daha sonra almak için kaydettiğiniz ürünlerin listesi.
                   </p>
                 </div>
-                <button onClick={() => router.push('/')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg shadow-indigo-600/20">
+                <button onClick={() => router.push('/products')} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors shadow-lg shadow-indigo-600/20">
                   Alışverişe Başla
                 </button>
               </div>
@@ -518,7 +532,7 @@ export default function DashboardPage() {
                   <div className="min-w-[120px] h-[100px] flex items-center justify-center">
                     <div className="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
                   </div>
-                ) : favorites.length === 0 ? (
+                ) : favoriteProducts.length === 0 ? (
                   <>
                     <div className="min-w-[120px] h-[100px] bg-slate-950 border border-dashed border-slate-800 rounded-xl flex items-center justify-center">
                       <span className="text-2xl opacity-50">🛒</span>
@@ -526,7 +540,7 @@ export default function DashboardPage() {
                     <div className="text-sm text-slate-500">Favori listeniz şu an boş görünüyor. Vitrindeki ürünleri inceleyip kalp ikonuna tıklayarak buraya ekleyebilirsiniz.</div>
                   </>
                 ) : (
-                  favorites.map((product) => (
+                  favoriteProducts.map((product) => (
                     <div key={product._id} className="min-w-[160px] max-w-[160px] bg-slate-950 rounded-xl border border-slate-800 hover:border-rose-500/30 transition-colors overflow-hidden group/fav relative shrink-0">
                       <button
                         onClick={() => handleRemoveFavorite(product._id)}
@@ -538,8 +552,8 @@ export default function DashboardPage() {
                         </svg>
                       </button>
                       <div className="w-full h-[90px] bg-slate-900 flex items-center justify-center overflow-hidden">
-                        {product.image ? (
-                          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        {product.image || product.imageUrl ? (
+                          <img src={product.image || product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-2xl opacity-50">🛒</span>
                         )}
@@ -588,7 +602,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* 🚀 ADRES EKLEME / DÜZENLEME MODAL (Posta Kodu Dahil) */}
+      {/* ADRES EKLEME / DÜZENLEME MODAL */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md transition-opacity">
           <div className="w-full max-w-md p-6 bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 transition-all transform scale-100 animate-in fade-in zoom-in duration-200">
@@ -609,7 +623,6 @@ export default function DashboardPage() {
                 />
               </div>
               
-              {/* 3 Sütunlu Grid Yapısı (İl, İlçe, Posta Kodu) */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider">İl</label>

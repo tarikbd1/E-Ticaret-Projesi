@@ -24,12 +24,12 @@ router.post('/change-password', protect, changePassword); // Şifre değiştirme
 router.post('/forgot-password', forgotPassword);          // Şifremi unuttum mail talebi
 router.post('/reset-password', resetPassword);            // Linke tıklayınca yeni şifre belirleme
 
-// 📍 YENİ EKLENEN ADRES ROTALARI
+// ADRES ROTALARI
 router.post('/address', protect, addAddress);             // Adres ekleme (sadece giriş yapmışlar)
 router.delete('/address/:addressId', protect, deleteAddress); // Adres silme (sadece giriş yapmışlar)
 router.put('/address/:addressId', protect, updateAddress);
 
-// ❤️ YENİ EKLENEN FAVORİ ROTALARI
+// FAVORİ ROTALARI
 router.post('/favorite/:productId', protect, addFavorite);
 router.delete('/favorite/:productId', protect, removeFavorite);
 

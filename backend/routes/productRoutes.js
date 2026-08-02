@@ -6,7 +6,7 @@ const {
   createProduct, 
   getProductById, 
   deleteProduct,
-  updateProduct // ÇÖZÜM BURADA: updateProduct'ı içeri aktardık
+  updateProduct 
 } = require('../controllers/productController');
 
 const { protect, adminOnly } = require('../middlewares/authMiddleware');
@@ -17,7 +17,7 @@ router.route('/')
 
 router.route('/:id')
   .get(getProductById)
-  .put(protect, adminOnly, updateProduct) // DÜZENLEME (PUT) İŞLEMİ BURAYA EKLENDİ
+  .put(protect, adminOnly, updateProduct) 
   .delete(protect, adminOnly, deleteProduct); 
 
 module.exports = router;

@@ -29,7 +29,7 @@ const createProduct = async (req, res) => {
     const product = new Product({
       name, description, price, image, 
       images: imagesArray,
-      category: category?.trim() || 'Genel', // 🚀 YENİ
+      category: category?.trim() || 'Genel', 
       stock,
       user: req.user._id
     });
@@ -75,19 +75,21 @@ const deleteProduct = async (req, res) => {
 
 // @desc    Ürünü Güncelle (PUT)
 // @access  Private/Admin
+// @desc    Ürünü Güncelle (PUT)
+// @access  Private/Admin
 const updateProduct = async (req, res) => {
   try {
     let updateData = { ...req.body };
 
-    // 🚀 YENİ: Güncellemede de virgülle ayrılmış ekstra resim gelirse diziye çevir
+    // Güncellemede de virgülle ayrılmış ekstra resim gelirse diziye çevir
     if (updateData.images && typeof updateData.images === 'string') {
       updateData.images = updateData.images.split(',').map(url => url.trim()).filter(url => url !== '');
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
+      req.params.id, 
+      updateData, 
+      { returnDocument: 'after', runValidators: true } 
     );
 
     if (!updatedProduct) {
@@ -96,7 +98,8 @@ const updateProduct = async (req, res) => {
 
     res.status(200).json({ success: true, data: updatedProduct });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Ürün güncellenirken sunucu hatası oluştu.' });
+    console.log("ÜRÜN GÜNCELLEME HATASI:", error);
+    res.status(500).json({ success: false, message: 'Ürün güncellenirken sunucu hatası oluştu.', error: error.message });
   }
 };
 

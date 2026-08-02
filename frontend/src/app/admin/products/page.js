@@ -9,6 +9,9 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function AdminProductsPage() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
+  
+  const [categories, setCategories] = useState([]); 
+
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false); 
 
@@ -21,7 +24,7 @@ export default function AdminProductsPage() {
     stock: '',
     description: '',
     image: '',
-    category: '' // 🚀 YENİ
+    category: ''
   });
 
   const [extraImages, setExtraImages] = useState(['']);
@@ -45,10 +48,12 @@ export default function AdminProductsPage() {
         }
 
         setIsAuthorized(true);
-        await fetchProducts();
+        await Promise.all([fetchProducts(), fetchCategories()]);
       } catch (error) {
         console.error("Yetkilendirme hatası:", error);
         router.push('/');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -63,8 +68,17 @@ export default function AdminProductsPage() {
       }
     } catch (error) {
       toast.error('Ürünler sunucudan çekilemedi!');
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/categories');
+      if (response.data.success) {
+        setCategories(response.data.data);
+      }
+    } catch (error) {
+      console.error('Kategoriler çekilemedi:', error);
     }
   };
 
@@ -94,7 +108,7 @@ export default function AdminProductsPage() {
       stock: product.stock ?? product.quantity ?? 0,
       description: product.description || '',
       image: product.image || product.imageUrl || '',
-      category: product.category || '' // 🚀 YENİ
+      category: product.category || ''
     });
 
     const existingExtras = Array.isArray(product.images) && product.images.length > 0
@@ -136,7 +150,7 @@ export default function AdminProductsPage() {
           stock: Number(editingProduct.stock),
           description: editingProduct.description,
           image: editingProduct.image,
-          category: editingProduct.category?.trim() || 'Genel', // 🚀 YENİ
+          category: editingProduct.category?.trim() || 'Genel',
           images: cleanedImages
         },
         {
@@ -172,12 +186,20 @@ export default function AdminProductsPage() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-100">Ürün Yönetimi</h1>
         </div>
-        <Link 
-          href="/admin/products/new" 
-          className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-colors text-sm"
-        >
-          + Yeni Ürün Ekle
-        </Link>
+        <div className="flex gap-3">
+          <Link 
+            href="/admin/categories" 
+            className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl shadow-lg transition-colors text-sm flex items-center gap-2"
+          >
+            ⚙️ Kategoriler
+          </Link>
+          <Link 
+            href="/admin/products/new" 
+            className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-colors text-sm"
+          >
+            + Yeni Ürün
+          </Link>
+        </div>
       </div>
 
       <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
@@ -276,16 +298,27 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              {/* 🚀 YENİ: Kategori */}
+              {/* 🚀 LİNK KALDIRILDI, SADECE LABEL KALDI */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kategori</label>
-                <input
-                  type="text"
-                  value={editingProduct.category ?? ''}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
-                  placeholder="Örn: Klavye, Kulaklık, Laptop..."
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                />
+                <div className="relative">
+                  <select
+                    required
+                    value={editingProduct.category ?? ''}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })}
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Kategori seçin...</option>
+                    {categories.map(cat => (
+                      <option key={cat._id} value={cat.name}>{cat.name}</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

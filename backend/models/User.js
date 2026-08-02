@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['customer', 'admin'], default: 'customer' },
-  loginCount: { type: Number, default: 0 }, // YENİ EKLENEN SATIR
+  loginCount: { type: Number, default: 0 }, 
   addresses: [addressSchema],
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
   resetPasswordToken: String,
@@ -24,9 +24,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Kaydetmeden önce şifreyi kriptolama
-userSchema.pre('save', async function() { // DÜZELTME 1: Parametreki (next) kelimesini sildik
+userSchema.pre('save', async function() { 
   if (!this.isModified('password')) {
-    return; // DÜZELTME 2: next() yerine sadece return yazarak işlemi bitiriyoruz
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

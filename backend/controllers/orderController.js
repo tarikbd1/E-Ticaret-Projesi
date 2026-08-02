@@ -43,7 +43,7 @@ exports.getDashboardStats = async (req, res) => {
   }
 };
 
-// 3. YENİ EKLENEN: Sipariş Silme Motoru
+// 3.Sipariş Silme Motoru
 exports.deleteOrder = async (req, res) => {
   try {
     // URL'den gelen ID parametresine göre siparişi bul ve veritabanından yok et

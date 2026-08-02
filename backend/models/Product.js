@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true, default: 0 },
   image: { type: String, required: true },
   images: { type: [String], default: [] },
-  category: { type: String, trim: true, default: 'Genel' }, // 🚀 YENİ: Admin serbest metin olarak yazıyor
+  category: { type: String, trim: true, default: 'Genel' },
   stock: { type: Number, required: true, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });

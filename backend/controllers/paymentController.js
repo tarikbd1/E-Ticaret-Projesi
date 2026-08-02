@@ -13,7 +13,7 @@ exports.createPayment = async (req, res) => {
   try {
     const { user, guestEmail, items, shippingAddress, paymentCard } = req.body;
 
-    // ÖNEMLİ: Eğer user bir obje ise ID'sini al, değilse olduğu gibi bırak
+    // user bir obje ise ID'sini al, değilse olduğu gibi bırak
     const userId = user && typeof user === 'object' ? user._id : user;
 
     let calculatedTotal = 0;
@@ -76,7 +76,7 @@ exports.createPayment = async (req, res) => {
       }
 
       if (result.status === 'success') {
-        // userId burada kayıt ediliyor, artık admin panelinde isimler görünecek
+        // userId burada kayıt ediliyor, admin panelinde isimler görünecek
         const newOrder = new Order({
           user: userId ? userId : null, 
           guestEmail: guestEmail,

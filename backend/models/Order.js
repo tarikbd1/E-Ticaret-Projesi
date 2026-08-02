@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
-  // 🚀 1. DEĞİŞİKLİK: Misafir alışverişine izin veriyoruz
+  // Misafir alışverişine izin veriyoruz
   user: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
@@ -14,7 +14,7 @@ const orderSchema = new mongoose.Schema({
   
   items: [
     {
-      // 🚀 2. DEĞİŞİKLİK: Stok düşme algoritması için ürün ID'si eklendi
+      // Stok düşme algoritması için ürün ID'si eklendi
       productId: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Product', 
@@ -31,7 +31,7 @@ const orderSchema = new mongoose.Schema({
     required: true 
   },
   
-  // 🚀 3. DEĞİŞİKLİK: İyzico'nun zorunlu tuttuğu adres alanları eklendi
+  // İyzico'nun zorunlu tuttuğu adres alanları eklendi
   shippingAddress: {
     contactName: { type: String, required: true }, // Alıcı Adı Soyadı
     address: { type: String, required: true },     // Açık Adres
@@ -46,7 +46,7 @@ const orderSchema = new mongoose.Schema({
     default: 'Hazırlanıyor' // Sipariş ödendiğinde direkt Hazırlanıyor'a düşmeli
   },
 
-  // 🚀 4. DEĞİŞİKLİK: İyzico Referans Numarası (İleride iade vb. işlemler için hayat kurtarır)
+  // İyzico Referans Numarası (İleride iade vb. işlemler için hayat kurtarır)
   iyzicoPaymentId: {
     type: String
   }

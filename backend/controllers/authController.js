@@ -19,7 +19,7 @@ const registerUser = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// 2. LOGIN (Güncellendi: Her başarılı girişte sayaç artacak)
+// 2. LOGIN
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -44,7 +44,7 @@ const loginUser = async (req, res) => {
   } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 };
 
-// 3. PROFILE (Güncellendi: Artık statik 18 değil, gerçek sayacı dönecek)
+// 3. PROFILE
 const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password').populate('favorites');
@@ -58,7 +58,7 @@ const getUserProfile = async (req, res) => {
         createdAt: user.createdAt, 
         loginCount: user.loginCount,
         addresses: user.addresses,
-        favorites: user.favorites // 🚀 YENİ
+        favorites: user.favorites
       });
     } else {
       res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
@@ -201,7 +201,7 @@ const addAddress = async (req, res) => {
   }
 };
 
-// 8. YENİ EKLENEN: ADRES SİLME
+// 8.ADRES SİLME
 const deleteAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -225,7 +225,7 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-// YENİ EKLENEN: ADRES GÜNCELLEME (PUT)
+// ADRES GÜNCELLEME (PUT)
 const updateAddress = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -252,7 +252,7 @@ const updateAddress = async (req, res) => {
   }
 };
 
-// 11. YENİ EKLENEN: FAVORİYE EKLEME
+// 11.FAVORİYE EKLEME
 const addFavorite = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
@@ -274,7 +274,7 @@ const addFavorite = async (req, res) => {
   }
 };
 
-// 12. YENİ EKLENEN: FAVORİDEN ÇIKARMA
+// 12.FAVORİDEN ÇIKARMA
 const removeFavorite = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

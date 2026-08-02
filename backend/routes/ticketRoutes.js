@@ -34,17 +34,16 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 🚀 PUT /api/tickets/:id - Adminin ticket durumunu VE YANITINI güncellemesi
+// PUT /api/tickets/:id - Adminin ticket durumunu VE YANITINI güncellemesi
 router.put('/:id', async (req, res) => {
   try {
     const { status, reply } = req.body; // Frontend'den hem durumu hem yanıtı alıyoruz
     
-    // Güvenlik Duvarı: İzin verilen durumların listesi (Cevaplandı EKLENDİ)
+    // Güvenlik Duvarı: İzin verilen durumların listesi
     if (status && !['Açık', 'İnceleniyor', 'Cevaplandı', 'Kapatıldı'].includes(status)) {
       return res.status(400).json({ success: false, message: 'Geçersiz durum bilgisi.' });
     }
 
-    // Güncellenecek verileri hazırlayalım (Eğer reply geldiyse onu da ekle)
     const updateData = {};
     if (status) updateData.status = status;
     if (reply !== undefined) updateData.reply = reply; 
@@ -65,7 +64,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 🗑️ DELETE /api/tickets/:id - Adminin ticket silmesi
+// DELETE /api/tickets/:id - Adminin ticket silmesi
 router.delete('/:id', async (req, res) => {
   try {
     const ticket = await Ticket.findByIdAndDelete(req.params.id);

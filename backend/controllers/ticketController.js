@@ -1,6 +1,6 @@
 const Ticket = require('../models/Ticket');
 
-// 📥 1. TÜM BİLETLERİ GETİR (Ekranda listelemek için)
+// 1. TÜM BİLETLERİ GETİR
 exports.getTickets = async (req, res) => {
   try {
     // En son açılan ticket en üstte gelsin diye sort ekledik
@@ -11,7 +11,7 @@ exports.getTickets = async (req, res) => {
   }
 };
 
-// 🚀 2. BİLET GÜNCELLE (Yanıt Gönderme ve Durum Değiştirme)
+// 2. BİLET GÜNCELLE (Yanıt Gönderme ve Durum Değiştirme)
 exports.updateTicket = async (req, res) => {
   try {
     const { reply, status } = req.body;
@@ -19,7 +19,7 @@ exports.updateTicket = async (req, res) => {
     const updatedTicket = await Ticket.findByIdAndUpdate(
       req.params.id,
       { reply, status },
-      { new: true, runValidators: true } // new: true, güncel veriyi hemen döndürür
+      { new: true, runValidators: true }
     );
 
     if (!updatedTicket) {
@@ -32,7 +32,7 @@ exports.updateTicket = async (req, res) => {
   }
 };
 
-// 🗑️ 3. BİLET SİLME
+// 3. BİLET SİLME
 exports.deleteTicket = async (req, res) => {
   try {
     const ticket = await Ticket.findByIdAndDelete(req.params.id);
