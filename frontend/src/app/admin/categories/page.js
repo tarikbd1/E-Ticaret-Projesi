@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
@@ -15,7 +16,7 @@ export default function CategoriesPage() {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
 
-  // 🚀 Kategorileri Backend'den Çekme
+  // Kategorileri Backend'den Çekme
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -34,7 +35,7 @@ export default function CategoriesPage() {
     }
   };
 
-  // 🚀 Yeni Kategori Ekleme
+  // Yeni Kategori Ekleme
   const handleAddCategory = async (e) => {
     e.preventDefault();
     if (!newCategory.trim()) return;
@@ -51,7 +52,7 @@ export default function CategoriesPage() {
       if (data.success) {
         toast.success('Kategori eklendi!');
         setNewCategory('');
-        fetchCategories(); // Listeyi yenile
+        fetchCategories();
       } else {
         toast.error(data.message || 'Hata oluştu!');
       }
@@ -60,7 +61,7 @@ export default function CategoriesPage() {
     }
   };
 
-  // 🚀 Kategori Silme
+  //  Kategori Silme
   const handleDelete = async (id) => {
     if (!window.confirm('Bu kategoriyi silmek istediğinize emin misiniz?')) return;
 
@@ -83,7 +84,7 @@ export default function CategoriesPage() {
     }
   };
 
-  // 🚀 Kategori Güncelleme
+  //  Kategori Güncelleme
   const handleUpdate = async (id) => {
     if (!editName.trim()) return;
 
@@ -115,9 +116,7 @@ export default function CategoriesPage() {
         
         <div className="flex items-center mb-8 gap-4">
           <Link href="/admin/products" className="group flex items-center justify-center w-10 h-10 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ArrowLeft size={20} strokeWidth={2.5} />
           </Link>
           <h1 className="text-3xl font-black text-white tracking-tight">Kategori Yönetimi</h1>
         </div>
@@ -172,10 +171,10 @@ export default function CategoriesPage() {
                     ) : (
                       <>
                         <button onClick={() => { setEditingId(cat._id); setEditName(cat.name); }} className="w-10 h-10 bg-slate-900 border border-slate-700 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:border-indigo-500/50 transition-all">
-                          ✏️
+                          <Pencil size={16} strokeWidth={2} />
                         </button>
                         <button onClick={() => handleDelete(cat._id)} className="w-10 h-10 bg-rose-500/10 border border-rose-500/20 rounded-lg flex items-center justify-center text-rose-400 hover:bg-rose-500 hover:text-white transition-all">
-                          🗑️
+                          <Trash2 size={16} strokeWidth={2} />
                         </button>
                       </>
                     )}

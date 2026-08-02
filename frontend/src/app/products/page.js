@@ -9,22 +9,22 @@ export default function CustomerProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🚀 FİLTRELEME & SIRALAMA STATE'LERİ
+  // FİLTRELEME & SIRALAMA STATE'LERİ
   const [selectedCategory, setSelectedCategory] = useState('Tümü');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState('default');
 
-  // 🚀 YENİ: SAYFALAMA (PAGINATION) STATE'İ
+  //  YENİ: SAYFALAMA (PAGINATION) STATE'İ
   const ITEMS_PER_PAGE = 8;
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  // 🚀 YENİ: FAVORİLER STATE'İ
+  //  YENİ: FAVORİLER STATE'İ
   const [favorites, setFavorites] = useState([]);
 
   const addToCartAction = useCartStore ? useCartStore((state) => state.addToCart) : null;
 
   useEffect(() => {
-    // 🚀 Sayfa yüklendiğinde tarayıcıdaki favorileri çek
+    //  Sayfa yüklendiğinde tarayıcıdaki favorileri çek
     const savedFavs = JSON.parse(localStorage.getItem('favorites')) || [];
     setFavorites(savedFavs);
 
@@ -84,7 +84,7 @@ export default function CustomerProductsPage() {
     }
   };
 
-  // 🚀 GÜNCELLENDİ: Favori Ekleme/Çıkarma Mantığı
+  // Favori Ekleme/Çıkarma Mantığı
   const toggleFavorite = (e, productId) => {
     e.preventDefault(); 
     
@@ -201,14 +201,14 @@ export default function CustomerProductsPage() {
           </div>
         ) : (
           <>
-            {/* 🔥 GERÇEK ÜRÜNLER */}
+            {/* GERÇEK ÜRÜNLER */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
               {displayedProducts.map((product) => {
                 const imageSrc = product.image || product.imageUrl;
                 const isOutOfStock = product.stock === 0;
                 const isLowStock = product.stock > 0 && product.stock <= 3;
                 
-                // 🚀 YENİ: Bu ürün favorilerde var mı kontrolü
+                // Bu ürün favorilerde var mı kontrolü
                 const isFavorite = favorites.includes(product._id);
                 
                 return (
@@ -237,7 +237,7 @@ export default function CustomerProductsPage() {
                         ) : null}
                       </div>
 
-                      {/* 🚀 GÜNCELLENDİ: Dinamik Kalp İkonu */}
+                      {/* Dinamik Kalp İkonu */}
                       <button 
                         onClick={(e) => toggleFavorite(e, product._id)}
                         className={`absolute top-3 right-3 z-20 w-9 h-9 rounded-xl border flex items-center justify-center backdrop-blur-md transition-all ${

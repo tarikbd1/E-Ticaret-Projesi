@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft, X } from 'lucide-react';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -102,8 +103,8 @@ export default function NewProductPage() {
   return (
     <div className="max-w-2xl mx-auto py-8">
       <div className="flex items-center mb-8">
-        <Link href="/admin/products" className="text-slate-400 hover:text-white mr-4">
-          ← Geri
+        <Link href="/admin/products" className="flex items-center gap-1.5 text-slate-400 hover:text-white mr-4 transition-colors">
+          <ArrowLeft size={18} strokeWidth={2.5} /> Geri
         </Link>
         <h1 className="text-3xl font-bold text-white">Yeni Ürün Ekle</h1>
       </div>
@@ -121,7 +122,7 @@ export default function NewProductPage() {
           />
         </div>
 
-        {/* 🚀 LİNK KALDIRILDI, SADECE LABEL KALDI */}
+        {/* Kategori seçimi: sadece açılır liste, ayrı link yok */}
         <div>
           <label className="block text-slate-300 mb-2 font-medium">Kategori</label>
           <div className="relative">
@@ -207,10 +208,10 @@ export default function NewProductPage() {
                   <button
                     type="button"
                     onClick={() => removeExtraImageField(index)}
-                    className="px-3 bg-slate-950 border border-slate-800 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors"
+                    className="px-3 bg-slate-950 border border-slate-800 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors flex items-center justify-center"
                     title="Bu görseli kaldır"
                   >
-                    ✕
+                    <X size={16} strokeWidth={2} />
                   </button>
                 )}
               </div>

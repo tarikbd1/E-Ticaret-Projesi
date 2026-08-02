@@ -91,7 +91,7 @@ export default function ProductDetailPage({ params }) {
 
   const allImages = product.images?.length > 0 ? product.images : (product.image || product.imageUrl ? [product.image || product.imageUrl] : []);
 
-  // 🚀 YENİ: PNG mi JPEG mi olduğunu URL'den anlayan yardımcı fonksiyon
+  // PNG mi JPEG mi olduğunu URL'den anlayan yardımcı fonksiyon
   const isPngImage = (url) => {
     if (!url) return false;
     const cleanUrl = url.split('?')[0].toLowerCase();
@@ -139,7 +139,7 @@ export default function ProductDetailPage({ params }) {
               </svg>
             </button>
 
-            {/* 🚀 GÜNCELLEME: PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
+            {/* PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
             {mainImage ? (
               <img 
                 src={mainImage} 
@@ -155,7 +155,7 @@ export default function ProductDetailPage({ params }) {
             )}
           </div>
 
-          {/* 📸 KÜÇÜK FOTOĞRAFLAR (THUMBNAILS) */}
+          {/* KÜÇÜK FOTOĞRAFLAR (THUMBNAILS) */}
           {allImages.length > 0 && (
             <div className="grid grid-cols-4 gap-3">
               {allImages.map((img, index) => (
@@ -169,7 +169,7 @@ export default function ProductDetailPage({ params }) {
                   }`}
                 >
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.1)_0%,transparent_70%)] z-0"></div>
-                  {/* 🚀 GÜNCELLEME: PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
+                  {/* PNG ise contain + boşluklu (uzak), JPEG ise cover + boşluksuz (tam oturan) */}
                   <img 
                     src={img} 
                     className={`w-full h-full z-10 ${isPngImage(img) ? 'object-contain p-3' : 'object-cover'}`}

@@ -11,13 +11,13 @@ export default function AdminSupportPage() {
   const [loading, setLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // 📝 YANITLAMA MODALI STATE'LERİ
+  //  YANITLAMA MODALI STATE'LERİ
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [replyText, setReplyText] = useState('');
   const [replyLoading, setReplyLoading] = useState(false);
 
-  // 🛡️ GÜVENLİK BEKÇİSİ VE VERİ ÇEKME
+  //  GÜVENLİK BEKÇİSİ VE VERİ ÇEKME
   useEffect(() => {
     const checkAdminAndFetch = async () => {
       try {
@@ -64,14 +64,14 @@ export default function AdminSupportPage() {
     }
   };
 
-  // 📝 YANITLAMA MODALINI AÇ
+  //  YANITLAMA MODALINI AÇ
   const handleReplyClick = (ticket) => {
     setSelectedTicket(ticket);
     setReplyText(ticket.reply || '');
     setIsModalOpen(true);
   };
 
-  // 🚀 YANITI SUNUCUYA GÖNDER (UPDATE)
+  //  YANITI SUNUCUYA GÖNDER (UPDATE)
   const handleReplySubmit = async (e) => {
     e.preventDefault();
     if (!replyText.trim()) return toast.warning('Lütfen bir yanıt yazın!');
@@ -84,7 +84,7 @@ export default function AdminSupportPage() {
         `http://localhost:5000/api/tickets/${selectedTicket._id}`, 
         {
           reply: replyText,
-          status: 'Cevaplandı' // İstersen burayı da duruma göre değiştirebilirsin
+          status: 'Cevaplandı' 
         },
         {
           headers: { Authorization: `Bearer ${token}` }
@@ -103,7 +103,7 @@ export default function AdminSupportPage() {
     }
   };
 
-  // 🗑️ TİCKET SİLME
+  // TİCKET SİLME
   const handleDelete = async (id) => {
     if (!window.confirm('Bu destek talebini tamamen silmek istediğinize emin misiniz?')) return;
     try {
@@ -118,7 +118,7 @@ export default function AdminSupportPage() {
     }
   };
 
-  // 🔥 DURUMA GÖRE RENK VEREN FONKSİYON (DİNAMİK)
+  // DURUMA GÖRE RENK VEREN FONKSİYON (DİNAMİK)
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Açık': 
@@ -183,7 +183,6 @@ export default function AdminSupportPage() {
                         {ticket.subject}
                       </td>
                       
-                      {/* 🚀 İŞTE BURASI DİNAMİK OLDU */}
                       <td className="p-5">
                         <span className={`px-3 py-1 rounded-md text-[11px] font-black tracking-widest uppercase border ${getStatusBadge(ticket.status)}`}>
                           {ticket.status || 'Bilinmiyor'}

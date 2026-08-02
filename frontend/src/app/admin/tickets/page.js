@@ -52,8 +52,8 @@ export default function AdminTicketsPage() {
     switch (status) {
       case 'Açık': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'İnceleniyor': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'Cevaplandı': return 'bg-blue-500/10 text-blue-400 border-blue-500/20'; // Mavi renkli profesyonel görünüm
-      case 'Kapatıldı': return 'bg-slate-500/10 text-slate-400 border-slate-500/20'; // Eskiden kalanlar için yedek
+      case 'Cevaplandı': return 'bg-blue-500/10 text-blue-400 border-blue-500/20'; 
+      case 'Kapatıldı': return 'bg-slate-500/10 text-slate-400 border-slate-500/20'; 
       default: return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
     }
   };
@@ -99,7 +99,6 @@ export default function AdminTicketsPage() {
                 </tr>
               ) : (
                 tickets.map((ticket) => {
-                  // 🚀 MÜHENDİSLİK DOKUNUŞU: Talep cevaplandıysa kilitli kabul et!
                   const isLocked = ticket.status === 'Cevaplandı' || ticket.status === 'Kapatıldı';
 
                   return (
@@ -126,13 +125,13 @@ export default function AdminTicketsPage() {
                       </td>
                       <td className="p-4 text-right">
                         
-                        {/* 🚀 EĞER KİLİTLİYSE SELECT YERİNE KİLİT İKONU GÖSTER, DEĞİLSE MENÜYÜ GÖSTER */}
+                        {/*  EĞER KİLİTLİYSE SELECT YERİNE KİLİT İKONU GÖSTER, DEĞİLSE MENÜYÜ GÖSTER */}
                         {isLocked ? (
                           <span 
                             className="inline-flex items-center gap-1 bg-slate-950 border border-slate-800 text-slate-500 text-[11px] font-bold rounded-lg px-3 py-1.5 cursor-not-allowed"
                             title="Bu talebe cevap verilmiş. Durumu değiştirilemez."
                           >
-                            🔒 Kilitli
+                           Kilitli
                           </span>
                         ) : (
                           <select 

@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-// 🚀 MÜHENDİSLİK DOKUNUŞU: Dinamik Sepet Anahtarı Üretici
-// Kim giriş yapmışsa onun mailiyle çekmece açar, yapmamışsa misafir çekmecesi açar
 const getDynamicKey = () => {
   // Next.js sunucu tarafında (SSR) patlamaması için kontrol
   if (typeof window === 'undefined') return 'cart_guest';
@@ -12,7 +10,7 @@ const getDynamicKey = () => {
     if (userStr) {
       const user = JSON.parse(userStr);
       if (user && user.email) {
-        return `cart_${user.email}`; // Örn: cart_ahmet@gmail.com
+        return `cart_${user.email}`; 
       }
     }
   } catch (error) {
@@ -21,7 +19,7 @@ const getDynamicKey = () => {
   return 'cart_guest'; // Kimse giriş yapmamışsa misafir sepetini kullan
 };
 
-// 🧠 ZUSTAND İÇİN ÖZEL DEPO (STORAGE) MOTORU
+// ZUSTAND İÇİN ÖZEL DEPO (STORAGE) MOTORU
 // Zustand standart localStorage yerine bizim bu motorumuzu kullanacak
 const dynamicStorage = {
   getItem: (name) => {
@@ -43,7 +41,7 @@ export const useCartStore = create(
     (set, get) => ({
       cartItems: [],
 
-      // 🛒 SEPETE ÜRÜN EKLE
+      // SEPETE ÜRÜN EKLE
       addToCart: (product, quantity = 1) => {
         const currentCart = get().cartItems;
         const existingItem = currentCart.find((item) => item._id === product._id);
@@ -61,7 +59,7 @@ export const useCartStore = create(
         }
       },
 
-      // 🔄 MİKTARI ARTIR / AZALT
+      // MİKTARI ARTIR / AZALT
       updateQuantity: (productId, amount) => {
         set({
           cartItems: get().cartItems.map((item) => {
@@ -75,19 +73,19 @@ export const useCartStore = create(
         });
       },
 
-      // 🗑️ SEPETTEN ÜRÜN SİL
+      // SEPETTEN ÜRÜN SİL
       removeFromCart: (productId) => {
         set({
           cartItems: get().cartItems.filter((item) => item._id !== productId),
         });
       },
 
-      // 🧹 SEPETİ TAMAMEN BOŞALT
+      // SEPETİ TAMAMEN BOŞALT
       clearCart: () => set({ cartItems: [] }),
     }),
     {
       name: 'ecommerce-cart', // Zustand bu ismi zorunlu ister, ama biz altta dynamicStorage ile eziyoruz!
-      storage: createJSONStorage(() => dynamicStorage), // 🔥 Özel motorumuzu bağladık
+      storage: createJSONStorage(() => dynamicStorage), // Özel motorumuzu bağladık
     }
   )
 );

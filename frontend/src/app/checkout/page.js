@@ -12,7 +12,7 @@ export default function CheckoutPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // YENİ EKLENEN: Kayıtlı Adresleri ve Kullanıcı Adını Tutacağımız State'ler
+  // Kayıtlı Adresleri ve Kullanıcı Adını Tutacağımız State'ler
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [userName, setUserName] = useState('');
 
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
     }
   }, [cartItems, router]);
 
-  // 2. YENİ EKLENEN: Profildeki Adresleri Veritabanından Çekme Motoru
+  // 2.Profildeki Adresleri Veritabanından Çekme Motoru
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem('token');
@@ -63,8 +63,7 @@ export default function CheckoutPage() {
     fetchProfile();
   }, []);
 
-  // 3. YENİ EKLENEN: Tıklanan Adresi Forma Dolduran Fonksiyon
-  // 3. YENİ EKLENEN: Tıklanan Adresi Forma Dolduran Fonksiyon
+  // 3.Tıklanan Adresi Forma Dolduran Fonksiyon
   const handleSelectSavedAddress = (addr) => {
     setAddress({
       ...address,
@@ -134,11 +133,11 @@ export default function CheckoutPage() {
         <form onSubmit={handlePayment} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-8 space-y-6">
             
-            {/* 🚀 YENİ EKLENEN: KAYITLI ADRESLER KUTUSU */}
+            {/* KAYITLI ADRESLER KUTUSU */}
             {savedAddresses.length > 0 && (
               <div className="bg-slate-900/50 p-6 rounded-3xl border border-slate-800/80">
                 <h2 className="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
-                  <span className="text-xl">📍</span> Kayıtlı Adreslerim
+                  <span className="text-xl"></span> Kayıtlı Adreslerim
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {savedAddresses.map(addr => (

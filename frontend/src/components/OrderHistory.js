@@ -12,7 +12,6 @@ export default function OrderHistory() {
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) return;
 
-        // Backend'de henüz oluşturmadıysak bir "my-orders" rotası gerekecek
         const response = await axios.get(`http://localhost:5000/api/orders/my-orders/${user._id}`);
         setOrders(response.data.data);
       } catch (error) {

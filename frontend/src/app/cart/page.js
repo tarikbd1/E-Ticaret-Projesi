@@ -78,7 +78,7 @@ export default function CartPage() {
                     <div className="flex-1 text-center sm:text-left w-full">
                       <h3 className="text-xl font-bold text-white mb-3 line-clamp-2">{item.name}</h3>
                       
-                      {/* 🔥 İŞTE BURASI: Fiyat ve Adet Seçici Yan Yana */}
+                      {/* Fiyat ve Adet Seçici Yan Yana */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <p className="text-indigo-400 font-extrabold text-2xl">
                           {(item.price * item.qty).toLocaleString('tr-TR')} TL

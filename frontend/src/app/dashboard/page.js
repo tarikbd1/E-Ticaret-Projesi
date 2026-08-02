@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  // 📍 ADRES YÖNETİMİ STATE'LERİ 
+  // ADRES YÖNETİMİ STATE'LERİ 
   const [addresses, setAddresses] = useState([]);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [addressLoading, setAddressLoading] = useState(false);
@@ -33,15 +33,15 @@ export default function DashboardPage() {
     zipCode: '' 
   });
 
-  // 📦 SİPARİŞ GEÇMİŞİ STATE'LERİ
+  //  SİPARİŞ GEÇMİŞİ STATE'LERİ
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
-  // ❤️ FAVORİLER STATE'LERİ (Artık gerçek ürün objelerini tutacak)
+  //  FAVORİLER STATE'LERİ (Artık gerçek ürün objelerini tutacak)
   const [favoriteProducts, setFavoriteProducts] = useState([]);
   const [favoritesLoading, setFavoritesLoading] = useState(true);
 
-  // ⏱️ CANLI İSTATİSTİK MOTORU STATE'LERİ
+  //  CANLI İSTATİSTİK MOTORU STATE'LERİ
   const [sessionTime, setSessionTime] = useState(0);
 
   const router = useRouter();
@@ -132,7 +132,7 @@ export default function DashboardPage() {
     fetchProfile();
   }, [router]);
 
-  // 🚀 YENİ: TARAYICI (LOCALSTORAGE) FAVORİLERİNİ ÇEKME MOTORU
+  // TARAYICI (LOCALSTORAGE) FAVORİLERİNİ ÇEKME MOTORU
   useEffect(() => {
     const fetchFavoriteProducts = async () => {
       const savedFavs = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -179,7 +179,7 @@ export default function DashboardPage() {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(amount || 0);
   };
 
-  // ❤️ GÜNCELLENDİ: LOCALSTORAGE ÜZERİNDEN FAVORİDEN ÇIKARMA
+  // LOCALSTORAGE ÜZERİNDEN FAVORİDEN ÇIKARMA
   const handleRemoveFavorite = (productId) => {
     // 1. Tarayıcıdan sil
     const savedFavs = JSON.parse(localStorage.getItem('favorites')) || [];
@@ -327,7 +327,7 @@ export default function DashboardPage() {
         {/* ÜST BANNER */}
         <div className="w-full p-7 md:p-10 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl shadow-2xl border border-indigo-500/20">
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-300 bg-clip-text text-transparent">
-            Hoş Geldin, {detectedName}! 👋
+            Hoş Geldin, {detectedName}! 
           </h1>
           <p className="text-sm text-slate-400 mt-2">Hesap ayarlarına ve sipariş detaylarına buradan ulaşabilirsin.</p>
         </div>
@@ -367,7 +367,7 @@ export default function DashboardPage() {
                 
                 <div className="flex items-center justify-between p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 hover:border-indigo-500/20 transition-colors">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs">⏱️</span>
+                    <span className="text-xs"></span>
                     <span className="text-xs font-medium text-slate-400">Aktif Süre</span>
                   </div>
                   <span className="text-xs font-black font-mono text-indigo-400 tracking-tight">
@@ -377,7 +377,7 @@ export default function DashboardPage() {
 
                 <div className="flex items-center justify-between p-3 bg-slate-950/60 rounded-xl border border-slate-800/80 hover:border-emerald-500/20 transition-colors">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs">👋</span>
+                    <span className="text-xs"></span>
                     <span className="text-xs font-medium text-slate-400">Giriş Sayısı</span>
                   </div>
                   <span className="text-xs font-black font-mono text-emerald-400 tracking-tight">
@@ -393,13 +393,13 @@ export default function DashboardPage() {
                 href="/support"
                 className="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 active:scale-[0.98] text-indigo-400 text-xs font-bold rounded-xl transition duration-200 cursor-pointer flex items-center justify-center gap-2 border border-indigo-500/20"
               >
-                🎧 Destek Talebi Oluştur
+                Destek Talebi Oluştur
               </Link>
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-white text-xs font-bold rounded-xl transition duration-200 cursor-pointer shadow-lg shadow-black/20 flex items-center justify-center gap-2 border border-slate-700"
               >
-                🔐 Şifremi Değiştir
+                Şifremi Değiştir
               </button>
             </div>
           </div>
@@ -411,7 +411,7 @@ export default function DashboardPage() {
             <div className="p-7 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-emerald-500/30 group">
               <div className="flex justify-between items-start">
                 <span className="px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-emerald-400 bg-emerald-500/10 rounded-md border border-emerald-500/20 flex items-center gap-1.5">
-                  📦 Siparişlerim
+                  Siparişlerim
                 </span>
               </div>
               <h3 className="text-lg font-bold text-slate-200 mt-6">Sipariş Geçmişi</h3>
@@ -455,7 +455,7 @@ export default function DashboardPage() {
             <div className="p-7 bg-slate-900 rounded-3xl border border-slate-800 flex flex-col transition-all hover:border-blue-500/30 group">
               <div>
                 <span className="px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase text-blue-400 bg-blue-500/10 rounded-md border border-blue-500/20 flex items-center gap-1.5 w-fit">
-                  📍 Adreslerim
+                  Adreslerim
                 </span>
                 <div className="flex justify-between items-center mt-6">
                   <h3 className="text-lg font-bold text-slate-200">Kayıtlı Adresler</h3>

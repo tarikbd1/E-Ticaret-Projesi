@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Settings, Package, X, Pencil, Trash2 } from 'lucide-react';
 
 export default function AdminProductsPage() {
   const router = useRouter();
@@ -191,7 +192,7 @@ export default function AdminProductsPage() {
             href="/admin/categories" 
             className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl shadow-lg transition-colors text-sm flex items-center gap-2"
           >
-            ⚙️ Kategoriler
+            <Settings size={16} strokeWidth={2} /> Kategoriler
           </Link>
           <Link 
             href="/admin/products/new" 
@@ -212,7 +213,7 @@ export default function AdminProductsPage() {
                 <th className="p-4 font-bold">KATEGORİ</th>
                 <th className="p-4 font-bold">FİYAT</th>
                 <th className="p-4 font-bold">STOK</th>
-                <th className="p-4 text-right">İŞLEMLER</th>
+                <th className="p-4 font-bold text-right">İŞLEMLER</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -230,7 +231,7 @@ export default function AdminProductsPage() {
                           {imgSrc ? (
                             <img src={imgSrc} alt="ürün" className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-xl">📦</span>
+                            <Package size={20} className="text-slate-600" strokeWidth={2} />
                           )}
                         </div>
                       </td>
@@ -238,7 +239,10 @@ export default function AdminProductsPage() {
                         {product.name}
                       </td>
                       <td className="p-4">
-                        <span className="px-2 py-1 rounded text-xs font-bold border bg-indigo-500/10 text-indigo-400 border-indigo-500/20">
+                        <span
+                          title={product.category || 'Genel'}
+                          className="inline-block max-w-[140px] truncate px-2.5 py-1 rounded-lg text-xs font-bold border bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                        >
                           {product.category || 'Genel'}
                         </span>
                       </td>
@@ -250,19 +254,21 @@ export default function AdminProductsPage() {
                           {product.stock ?? product.quantity ?? 0}
                         </span>
                       </td>
-                      <td className="p-4 text-right space-x-3 text-sm font-medium">
-                        <button 
-                          onClick={() => handleEditClick(product)}
-                          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-                        > 
-                          Düzenle
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(product._id)}
-                          className="text-rose-400 hover:text-rose-300 transition-colors"
-                        >
-                          Sil
-                        </button>
+                      <td className="p-4 text-right">
+                        <div className="flex flex-col items-end gap-1.5">
+                          <button 
+                            onClick={() => handleEditClick(product)}
+                            className="flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 transition-colors text-xs font-bold"
+                          > 
+                            <Pencil size={13} strokeWidth={2} /> Düzenle
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(product._id)}
+                            className="flex items-center gap-1.5 text-rose-400 hover:text-rose-300 transition-colors text-xs font-bold"
+                          >
+                            <Trash2 size={13} strokeWidth={2} /> Sil
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -280,9 +286,9 @@ export default function AdminProductsPage() {
               <h3 className="text-xl font-bold text-white">Ürünü Düzenle</h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-500 hover:text-slate-300 font-bold transition text-xl"
+                className="text-slate-500 hover:text-slate-300 transition"
               >
-                ✕
+                <X size={22} strokeWidth={2.5} />
               </button>
             </div>
 
@@ -298,7 +304,7 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              {/* 🚀 LİNK KALDIRILDI, SADECE LABEL KALDI */}
+              {/* Kategori seçimi: sadece açılır liste, ayrı link yok */}
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Kategori</label>
                 <div className="relative">
@@ -382,10 +388,10 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           onClick={() => removeExtraImageField(index)}
-                          className="px-3 bg-slate-950 border border-slate-800 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors text-sm"
+                          className="px-3 bg-slate-950 border border-slate-800 rounded-xl text-rose-400 hover:bg-rose-500/10 hover:border-rose-500/30 transition-colors flex items-center justify-center"
                           title="Bu görseli kaldır"
                         >
-                          ✕
+                          <X size={16} strokeWidth={2} />
                         </button>
                       )}
                     </div>

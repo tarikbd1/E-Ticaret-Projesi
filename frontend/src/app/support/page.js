@@ -7,10 +7,10 @@ import 'react-toastify/dist/ReactToastify.css';
 export default function SupportPage() {
   const router = useRouter();
   
-  // 🚀 EKRAN DURUMLARI: 'check' (yükleniyor), 'authChoice' (seçim ekranı), 'guestLogin' (misafir formu), 'support' (ana bilet ekranı)
+  // EKRAN DURUMLARI: 'check' (yükleniyor), 'authChoice' (seçim ekranı), 'guestLogin' (misafir formu), 'support' (ana bilet ekranı)
   const [viewState, setViewState] = useState('check');
   
-  // 🚀 KULLANICI STATE'LERİ
+  //  KULLANICI STATE'LERİ
   const [userAuth, setUserAuth] = useState(null);
   const [guestAuth, setGuestAuth] = useState(null); // Misafir oturumu
   
@@ -20,7 +20,7 @@ export default function SupportPage() {
   const [myTickets, setMyTickets] = useState([]);
   const [activeTab, setActiveTab] = useState('new');
 
-  // 🛡️ SİSTEME GİRİŞ KONTROLÜ
+  //  SİSTEME GİRİŞ KONTROLÜ
   useEffect(() => {
     const userData = localStorage.getItem('user');
     const guestData = sessionStorage.getItem('guestUser'); // Tarayıcı kapanınca silinen geçici hafıza
@@ -55,7 +55,7 @@ export default function SupportPage() {
     }
   };
 
-  // 📝 MİSAFİR GİRİŞİNİ BAŞLAT
+  // MİSAFİR GİRİŞİNİ BAŞLAT
   const handleGuestLogin = (e) => {
     e.preventDefault();
     const guestInfo = { name: formData.name, email: formData.email };
@@ -70,13 +70,12 @@ export default function SupportPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🚀 TİCKET GÖNDERME MOTORU
+  // TİCKET GÖNDERME MOTORU
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 💡 MÜHENDİSLİK DETAYI: Misafirse isminin sonuna [Misafir] ekle ki admin anlasın!
       const finalName = guestAuth ? `${formData.name} [Misafir]` : formData.name;
 
       const payload = {
@@ -111,7 +110,7 @@ export default function SupportPage() {
     }
   };
 
-  // 🎨 ROZET RENKLERİ
+  // ROZET RENKLERİ
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Açık': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
@@ -122,7 +121,7 @@ export default function SupportPage() {
     }
   };
 
-  // 1️⃣ YÜKLENİYOR EKRANI
+  // YÜKLENİYOR EKRANI
   if (viewState === 'check') {
     return (
       <div className="min-h-[calc(100vh-69px)] bg-slate-950 flex justify-center items-center">
@@ -131,7 +130,7 @@ export default function SupportPage() {
     );
   }
 
-  // 2️⃣ SEÇİM EKRANI (Giriş Yap vs Misafir)
+  // SEÇİM EKRANI (Giriş Yap vs Misafir)
   if (viewState === 'authChoice') {
     return (
       <div className="min-h-[calc(100vh-69px)] bg-slate-950 py-12 px-4 flex flex-col items-center justify-center">
@@ -175,7 +174,7 @@ export default function SupportPage() {
     );
   }
 
-  // 3️⃣ MİSAFİR BİLGİ GİRİŞ FORMU
+  // MİSAFİR BİLGİ GİRİŞ FORMU
   if (viewState === 'guestLogin') {
     return (
       <div className="min-h-[calc(100vh-69px)] bg-slate-950 py-12 px-4 flex flex-col items-center justify-center">
@@ -207,12 +206,12 @@ export default function SupportPage() {
     );
   }
 
-  // 4️⃣ ANA DESTEK EKRANI
+  // ANA DESTEK EKRANI
   return (
     <div className="min-h-[calc(100vh-69px)] bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
       <ToastContainer position="top-right" theme="dark" />
       
-      {/* 💡 MİSAFİR UYARISI */}
+      {/* MİSAFİR UYARISI */}
       {guestAuth && (
         <div className="max-w-4xl w-full mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between gap-4 animate-in fade-in">
           <div className="flex items-center gap-3">
@@ -231,10 +230,10 @@ export default function SupportPage() {
       <div className="max-w-4xl w-full flex justify-center mb-10">
         <div className="bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800 flex gap-2 shadow-lg backdrop-blur-sm">
           <button onClick={() => setActiveTab('new')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'new' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-            📝 Yeni Talep Oluştur
+            Yeni Talep Oluştur
           </button>
           <button onClick={() => setActiveTab('past')} className={`px-6 py-3 rounded-xl text-sm font-bold transition-all duration-300 ${activeTab === 'past' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}>
-            📂 Geçmiş Taleplerim {myTickets.length > 0 && <span className="ml-2 bg-slate-950/50 px-2 py-0.5 rounded-md">{myTickets.length}</span>}
+            Geçmiş Taleplerim {myTickets.length > 0 && <span className="ml-2 bg-slate-950/50 px-2 py-0.5 rounded-md">{myTickets.length}</span>}
           </button>
         </div>
       </div>

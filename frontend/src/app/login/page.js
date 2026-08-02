@@ -43,7 +43,7 @@ export default function LoginPage() {
         // 1. Token'ı kaydediyoruz
         localStorage.setItem('token', response.data.token);
         
-        // 2. Kullanıcı bilgilerini ve _id'yi kaydediyoruz (HAYATİ DÜZELTME BURADA)
+        // 2. Kullanıcı bilgilerini ve _id'yi kaydediyoruz
         localStorage.setItem('user', JSON.stringify({
           _id: response.data._id || response.data.id, // Checkout için gereken ID eklendi
           name: response.data.name,
@@ -51,7 +51,7 @@ export default function LoginPage() {
           email: userEmail
         }));
 
-        // 🚀 ZUSTAND DİNAMİK SEPET YÖNETİMİ: Misafir Sepetini Kullanıcıya Aktar
+        // ZUSTAND DİNAMİK SEPET YÖNETİMİ: Misafir Sepetini Kullanıcıya Aktar
         const guestCart = localStorage.getItem('cart_guest'); 
         const userCartKey = `cart_${userEmail}`; 
 

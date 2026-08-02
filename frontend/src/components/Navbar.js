@@ -85,7 +85,7 @@ export default function Navbar() {
         {isLoggedIn ? (
           <div className="flex items-center gap-3 sm:gap-4">
             
-            {/* 👑 SADECE YÖNETİCİYE GÖRÜNEN ADMİN PANELİ BUTONU */}
+            {/* SADECE YÖNETİCİYE GÖRÜNEN ADMİN PANELİ BUTONU */}
             {user?.role === 'admin' && (
               <Link 
                 href="/admin" 
